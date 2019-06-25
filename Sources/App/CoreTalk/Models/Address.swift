@@ -17,8 +17,6 @@ struct Address: Equatable, Encodable {
     
      let address: String
     
-
-    
     init?(_ address: String) {
         if address.split(separator: Address.AddressSeparator).count != Address.AllowedSpaces {
             return nil            

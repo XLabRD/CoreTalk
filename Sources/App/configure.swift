@@ -26,22 +26,22 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(databases)
 
     // Configure migrations
-    var migrations = MigrationConfig()
-    migrations.add(model: Todo.self, database: .sqlite)
-    services.register(migrations)
+//    var migrations = MigrationConfig()
+//    migrations.add(model: Todo.self, database: .sqlite)
+//    services.register(migrations)
     
-    /// ########################[ SOCKETS ]###############################
+    /// ########################[ CORETALK/MODELS ]###############################
     let websockets = NIOWebSocketServer.default()
     
-    var crServices = [CoreTalkService]()
+    //CORETALK
     
     let ping = Ping()
     let auth = Authentication()
+    let crServices:[CoreTalkService] = [ping, auth]
     
-    crServices = [ping, auth]
-    let socketManager = SocketServer(with: crServices)
+    //CORETALK
+    let socketManager = CoreTalkServer(with: crServices)
     
     socketManager.sockets(websockets)
     services.register(websockets, as: WebSocketServer.self)
-    
 }

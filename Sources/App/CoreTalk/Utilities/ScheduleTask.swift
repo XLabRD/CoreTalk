@@ -18,7 +18,6 @@ class ScheduleQueue {
             let indexOf = self.queue.firstIndex(of: task)
             if let idx = indexOf {
                 self.queue.remove(at: idx)
-//                 print("[ScheduleTask] Cleanup Complete")
             } else {
                 print("[ScheduleTask] Lost reference of task!")
             }

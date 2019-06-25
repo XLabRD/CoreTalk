@@ -12,7 +12,7 @@ fileprivate let DefaultDomain = "com.coretalk.error"
 //setup
 
 
-enum CoreErrorType {
+enum CoreTalkErrorType {
     case InvalidFormat
     case ServiceNotFound
     case PermissionDenied
@@ -20,7 +20,7 @@ enum CoreErrorType {
     case Unknown
 }
 
-struct CoreError: Encodable {
+struct CoreTalkError: Encodable {
     var error: CoreErrorBody
     
     init(code: Int, text: String) {
@@ -30,7 +30,7 @@ struct CoreError: Encodable {
         self.error = CoreErrorBody(code: code, text: text, domain: domain)
     }
     
-    init(type: CoreErrorType) {
+    init(type: CoreTalkErrorType) {
         switch type {
         case .InvalidFormat:
             self.error = CoreErrorBody(code: 600, text: "Invalid Format", domain: DefaultDomain)

@@ -29,7 +29,7 @@ class ConnectionPool {
         ScheduledTask.perform(in: .seconds(10)) {
             if connection.confirmed == false {
                 print("[ConnectionPool] Auth Timeout Detected")
-                let err = CoreError(type: .AuthTimeout)
+                let err = CoreTalkError(type: .AuthTimeout)
                 connection.send(object: err)
                 self.detach(connection: connection)
             } else {

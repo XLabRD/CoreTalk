@@ -2,7 +2,7 @@ import Vapor
 
 
 
-class SocketServer {
+class CoreTalkServer {
     //setup
     static let EndPoint = "coretalk"
     //setup        
@@ -20,7 +20,7 @@ class SocketServer {
     
     public func sockets(_ websockets: NIOWebSocketServer)  {
         
-        websockets.get(SocketServer.EndPoint) { ws, req in
+        websockets.get(CoreTalkServer.EndPoint) { ws, req in
             
             let connection = Connection(socket: ws)
             print("[SocketServer] Socket open.")
@@ -43,16 +43,16 @@ class SocketServer {
                 if result != .ok {
                     switch result {
                     case .invalidFormat:
-                        let err = CoreError(type: .InvalidFormat)
+                        let err = CoreTalkError(type: .InvalidFormat)
                         source.send(object: err)
                     case .permissionDenied:
-                        let err = CoreError(type: .PermissionDenied)
+                        let err = CoreTalkError(type: .PermissionDenied)
                         source.send(object: err)
                     case .serviceNotFound:
-                        let err = CoreError(type: .ServiceNotFound)
+                        let err = CoreTalkError(type: .ServiceNotFound)
                         source.send(object: err)
                     default:
-                        let err = CoreError(type: .Unknown)
+                        let err = CoreTalkError(type: .Unknown)
                         source.send(object: err)
                     }
                     
