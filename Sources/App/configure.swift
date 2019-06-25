@@ -29,4 +29,19 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var migrations = MigrationConfig()
     migrations.add(model: Todo.self, database: .sqlite)
     services.register(migrations)
+    
+    /// ########################[ SOCKETS ]###############################
+    let websockets = NIOWebSocketServer.default()
+    
+    var crServices = [CoreTalkService]()
+    
+    let ping = Ping()
+    let auth = Authentication()
+    
+    crServices = [ping, auth]
+    let socketManager = SocketServer(with: crServices)
+    
+    socketManager.sockets(websockets)
+    services.register(websockets, as: WebSocketServer.self)
+    
 }
