@@ -53,17 +53,6 @@ struct CoreTalkMessage: CoreTalkRepresentable  {
     var raw: String?
 }
 
-extension Date {
-     func ctStringValue() -> String {
-        let formatter = DateFormatter()
-        //SETUP
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-        let myString = formatter.string(from: self)
-        return myString
-    }
-}
-
-
 struct WireMessage { //Send to client
     static func encode<T: Encodable>(object: T) -> String {
         let jsonData = try! JSONEncoder().encode(object)

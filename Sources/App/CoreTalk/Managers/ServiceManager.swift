@@ -8,7 +8,7 @@
 import Vapor
 
 
-class ServicePool {   
+class ServiceManager {   
     enum HandleResult {
         case ok
         case permissionDenied
@@ -36,7 +36,7 @@ class ServicePool {
         print("[ServicePool] \(service.serviceName) Service now DETACHED")
     }
     
-    func handle(message: CoreTalkMessage,  source: inout Connection, pool: ConnectionPool) -> HandleResult {
+    func handle(message: CoreTalkMessage,  source: inout Connection, pool: ConnectionManager) -> HandleResult {
         guard let verb = message.verb else {
             return .invalidFormat
         }

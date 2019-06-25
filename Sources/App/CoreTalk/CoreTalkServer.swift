@@ -6,8 +6,8 @@ class CoreTalkServer {
     //setup
     static let EndPoint = "coretalk"
     //setup        
-    private var connections = ConnectionPool()
-    private var services = ServicePool()
+    private var connections = ConnectionManager()
+    private var services = ServiceManager()
     
     init(with coreTalkServices: [CoreTalkService]) {
         
@@ -18,9 +18,9 @@ class CoreTalkServer {
         print("[SocketServer] Initialized and ready.")
     }
     
-    public func sockets(_ websockets: NIOWebSocketServer)  {
+    public func sockets(_ server: NIOWebSocketServer)  {
         
-        websockets.get(CoreTalkServer.EndPoint) { ws, req in
+        server.get(CoreTalkServer.EndPoint) { ws, req in
             
             let connection = Connection(socket: ws)
             print("[SocketServer] Socket open.")

@@ -8,7 +8,7 @@
 import Vapor
 
 
-class ConnectionPool {
+class ConnectionManager {
     //setup
     static let AuthSandboxTimeOut = 5
     //setup

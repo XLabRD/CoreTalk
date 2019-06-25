@@ -26,7 +26,7 @@ class Ping: CoreTalkService {
     
     var respondsTo = ["ping"]
     
-    func handle(message: CoreTalkMessage, source: inout Connection, pool: ConnectionPool) {
+    func handle(message: CoreTalkMessage, source: inout Connection, pool: ConnectionManager) {
         if let verb = message.verb {
             switch verb {
             case "ping":

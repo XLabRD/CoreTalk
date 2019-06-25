@@ -20,7 +20,7 @@ protocol CoreTalkService {
     static var permissionRequired: Bool {get set}     
     
     func subscribeTo(notification: CoreTalkNotificationType) -> Bool
-    func handle(message:CoreTalkMessage, source: inout Connection, pool:ConnectionPool)
+    func handle(message:CoreTalkMessage, source: inout Connection, pool:ConnectionManager)
 }
 
 extension CoreTalkService {
