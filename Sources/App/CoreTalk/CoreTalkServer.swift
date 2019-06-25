@@ -2,10 +2,7 @@ import Vapor
 
 
 
-class CoreTalkServer {
-    //setup
-    static let EndPoint = "coretalk"
-    //setup        
+class CoreTalkServer {      
     private var connections = ConnectionManager()
     private var services = ServiceManager()
     
@@ -20,7 +17,7 @@ class CoreTalkServer {
     
     public func sockets(_ server: NIOWebSocketServer)  {
         
-        server.get(CoreTalkServer.EndPoint) { ws, req in
+        server.get(CoreTalkSettings.EndPoint) { ws, req in
             
             let connection = Connection(socket: ws)
             print("[SocketServer] Socket open.")

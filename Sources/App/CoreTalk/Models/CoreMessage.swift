@@ -63,7 +63,7 @@ struct WireMessage { //Send to client
 
 //SETUP
 struct CoreHandshake: Encodable {
-    let name = "CoreTalk"
-    let version = "0.1"
+    let name = CoreTalkSettings.ServerName
+    let version = CoreTalkSettings.ServerVersion
     let timeStamp = Date().ctStringValue()    
 }

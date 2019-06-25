@@ -8,9 +8,6 @@ import Foundation
 
 
 class Authentication: CoreTalkService {
-    
-
-    
     static var permissionRequired = false
     static var serviceName: String = "Authentication"
     var defaultAccessPermissions = [CoreTalkService.Type]()

@@ -10,8 +10,6 @@ import Foundation
 
 
 class Ping: CoreTalkService {
-    
-    
     static var serviceName: String = "PingPong"
     static var permissionRequired = true
     var serviceId = UUID()

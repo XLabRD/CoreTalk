@@ -7,11 +7,6 @@
 
 import Vapor
 
-//setup
-fileprivate let DefaultDomain = "com.coretalk.error"
-//setup
-
-
 enum CoreTalkErrorType {
     case InvalidFormat
     case ServiceNotFound
@@ -24,7 +19,7 @@ struct CoreTalkError: Encodable {
     var error: CoreErrorBody
     
     init(code: Int, text: String) {
-        self.error = CoreErrorBody(code: code, text: text, domain: DefaultDomain)
+        self.error = CoreErrorBody(code: code, text: text, domain: CoreTalkSettings.ErrorDefaultDomain)
     }
     init(code: Int, text: String, domain: String) {
         self.error = CoreErrorBody(code: code, text: text, domain: domain)
@@ -33,15 +28,15 @@ struct CoreTalkError: Encodable {
     init(type: CoreTalkErrorType) {
         switch type {
         case .InvalidFormat:
-            self.error = CoreErrorBody(code: 600, text: "Invalid Format", domain: DefaultDomain)
+            self.error = CoreErrorBody(code: 600, text: "Invalid Format", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .ServiceNotFound:
-            self.error = CoreErrorBody(code: 601, text: "Service not found", domain: DefaultDomain)
+            self.error = CoreErrorBody(code: 601, text: "Service not found", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .PermissionDenied:
-            self.error = CoreErrorBody(code: 700, text: "Permission Denied", domain: DefaultDomain)
+            self.error = CoreErrorBody(code: 700, text: "Permission Denied", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .AuthTimeout:
-            self.error = CoreErrorBody(code: 601, text: "Auth Timeout", domain: DefaultDomain)
+            self.error = CoreErrorBody(code: 601, text: "Auth Timeout", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .Unknown:
-            self.error = CoreErrorBody(code: 601, text: "Unknown Error", domain: DefaultDomain)
+            self.error = CoreErrorBody(code: 601, text: "Unknown Error", domain: CoreTalkSettings.ErrorDefaultDomain)
             
         
         }

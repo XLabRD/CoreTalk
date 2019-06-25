@@ -9,9 +9,6 @@ import Vapor
 
 
 class ConnectionManager {
-    //setup
-    static let AuthSandboxTimeOut = 5
-    //setup
     private var connections = [Connection]()
     
     var count: Int {
@@ -20,13 +17,11 @@ class ConnectionManager {
         }
     }
     
-   
-    
     func attach(connection: Connection) {        
         self.connections.append(connection)        
         print("[ConnectionPool] Attached connection. Active: \(self.connections.count) Active")
         
-        ScheduledTask.perform(in: .seconds(10)) {
+        ScheduledTask.perform(in: .seconds(CoreTalkSettings.AuthSandboxTimeOut)) {
             if connection.confirmed == false {
                 print("[ConnectionPool] Auth Timeout Detected")
                 let err = CoreTalkError(type: .AuthTimeout)
