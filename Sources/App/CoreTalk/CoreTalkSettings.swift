@@ -15,4 +15,7 @@ struct CoreTalkSettings {
     static let AuthSandboxTimeOut = 5
     static let ServerDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
     static let ErrorDefaultDomain = "ct.err"
+    static let AddressWildCard: Character = "*"
+    static let AddressSeparator:Character = "."
+    static let AddressAllowedSpaces:UInt8 = 3
 }

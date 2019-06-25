@@ -9,21 +9,20 @@ import Vapor
 
 
 struct Address: Equatable, Encodable {
-    //Setup
-    private static let WildCard: Character = "*"
-    private static let AddressSeparator:Character = "."
-    private static let AllowedSpaces:UInt8 = 3
-    //Setup
-    
      let address: String
     
     init?(_ address: String) {
-        if address.split(separator: Address.AddressSeparator).count != Address.AllowedSpaces {
+        if address.split(separator: CoreTalkSettings.AddressSeparator).count != CoreTalkSettings.AddressAllowedSpaces {
             return nil            
         }
-        
         self.address = address
     }
+    
+//    init?(addressForDomain domain: String) {
+//        if domain.split(separator: CoreTalkSettings.AddressSeparator).count != CoreTalkSettings.AddressAllowedSpaces - 1 {
+//            return nil
+//        }
+//    }
     
     static func == (lhs: Address, rhs: Address) -> Bool {
         if lhs.address == rhs.address { return true }
@@ -31,11 +30,11 @@ struct Address: Equatable, Encodable {
     }
     
     func isMember(of query: String) -> Bool {
-        let valueElements = address.split(separator: Address.AddressSeparator)
-        let queryElements = query.split(separator: Address.AddressSeparator)
+        let valueElements = address.split(separator: CoreTalkSettings.AddressSeparator)
+        let queryElements = query.split(separator: CoreTalkSettings.AddressSeparator)
         
         for (index, queryElement) in queryElements.enumerated() {
-            if (queryElement == String(Address.WildCard)) || (queryElement == valueElements[index]) {
+            if (queryElement == String(CoreTalkSettings.AddressWildCard)) || (queryElement == valueElements[index]) {
                 continue
             } else {
                 return false

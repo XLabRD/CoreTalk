@@ -2,17 +2,15 @@ import Vapor
 
 
 
-class CoreTalkServer {      
+class CoreTalkServer {
     private var connections = ConnectionManager()
     private var services = ServiceManager()
     
-    init(with coreTalkServices: [CoreTalkService]) {
-        
+    init(with coreTalkServices: [CoreTalkService]) {        
         for service in coreTalkServices {
             self.services.attach(service: service)
         }
-        
-        print("[SocketServer] Initialized and ready.")
+        print("[SocketServer] Boot Complete")
     }
     
     public func sockets(_ server: NIOWebSocketServer)  {
@@ -20,14 +18,15 @@ class CoreTalkServer {
         server.get(CoreTalkSettings.EndPoint) { ws, req in
             
             let connection = Connection(socket: ws)
-            print("[SocketServer] Socket open.")
+            print("[SocketServer] Socket open")
             self.connections.attach(connection: connection)
             connection.send(object: CoreHandshake())
-            
+            self.services.publish(notificationType: .connect, for: connection)
             
             ws.onClose.always {
-                print("[SocketServer] Socket Closed.")
-                self.connections.detach(socket: ws)
+                print("[SocketServer] Socket Closed")
+                self.services.publish(notificationType: .disconnect, for: connection)
+                self.connections.detach(socket: ws)                
             }
             
             ws.onText { ws, text in
@@ -52,13 +51,11 @@ class CoreTalkServer {
                         let err = CoreTalkError(type: .Unknown)
                         source.send(object: err)
                     }
-                    
                 }
-                
             }
             
             ws.onError { ws, error in
-                print("[WebSocketServer] Unable to start server")
+                print("[WebSocketServer] Unable to start server. Error: \(error)")
             }
         }
     }

@@ -9,18 +9,21 @@ import Vapor
 
 
 enum CoreTalkNotificationType {
-        case Disconnect
-        case Connect
+    case disconnect
+    case connect
 }
 
-protocol CoreTalkService {    
+
+protocol CoreTalkService {
     static var serviceName: String { get set }
+    var notificationSubscriptions: [CoreTalkNotificationType]? {get set}
     var serviceId: UUID { get set }
     var respondsTo: [String] { get set }
     static var permissionRequired: Bool {get set}     
     
-    func subscribeTo(notification: CoreTalkNotificationType) -> Bool
+    
     func handle(message:CoreTalkMessage, source: inout Connection, pool:ConnectionManager)
+    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection)
 }
 
 extension CoreTalkService {
@@ -36,9 +39,6 @@ extension CoreTalkService {
         }
     }
     
-    func subscribeTo(notification: CoreTalkNotificationType) -> Bool {
-        return false
-    }
+    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {}
     
-        
 }

@@ -20,7 +20,7 @@ class ConnectionManager {
     func attach(connection: Connection) {        
         self.connections.append(connection)        
         print("[ConnectionPool] Attached connection. Active: \(self.connections.count) Active")
-        
+                
         ScheduledTask.perform(in: .seconds(CoreTalkSettings.AuthSandboxTimeOut)) {
             if connection.confirmed == false {
                 print("[ConnectionPool] Auth Timeout Detected")
@@ -35,23 +35,23 @@ class ConnectionManager {
     
     func detach(connection: Connection) {
         connection.socket.close()
-        let indexOf = self.connections.firstIndex(of: connection)
-        if let idx = indexOf {
-            self.connections.remove(at: idx)
-        }
+        self.connections.removeAll {$0 == connection}
         
         print("[ConnectionPool] Connection Closed & Detached. Remain: \(self.connections.count) Active")
     }
     
     func detach(socket: WebSocket) {
-        let indexOf = self.findConnectionIndex(from: socket)
         
-        if let idx = indexOf {
-            self.connections.remove(at: idx)
-            print("[ConnectionPool] Socket closed. Detached Connection. Remain: \(self.connections.count) Active")
-        }
-        
+        self.connections.removeAll { $0.socket === socket }
+        print("[ConnectionPool] Socket closed. Detached Connection. Remain: \(self.connections.count) Active")
+////        let indexOf = self.findConnectionIndex(from: socket)
+//
+//        if let idx = indexOf {
+//            self.connections.remove(at: idx)
+//
+//        }
     }
+    
     
     func findConnection(from socket: WebSocket) -> Connection? {
         let foundConnections = connections.filter { $0.socket === socket }

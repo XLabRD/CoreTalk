@@ -12,6 +12,8 @@ enum CoreTalkErrorType {
     case ServiceNotFound
     case PermissionDenied
     case AuthTimeout
+    case AddressTaken
+    case AlreadyAuth
     case Unknown
 }
 
@@ -35,8 +37,12 @@ struct CoreTalkError: Encodable {
             self.error = CoreErrorBody(code: 700, text: "Permission Denied", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .AuthTimeout:
             self.error = CoreErrorBody(code: 601, text: "Auth Timeout", domain: CoreTalkSettings.ErrorDefaultDomain)
+        case .AddressTaken:
+            self.error = CoreErrorBody(code: 602, text: "Address Taken", domain: CoreTalkSettings.ErrorDefaultDomain)
+        case .AlreadyAuth:
+            self.error = CoreErrorBody(code: 602, text: "Already authenticated", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .Unknown:
-            self.error = CoreErrorBody(code: 601, text: "Unknown Error", domain: CoreTalkSettings.ErrorDefaultDomain)
+            self.error = CoreErrorBody(code: 800, text: "Unknown Error", domain: CoreTalkSettings.ErrorDefaultDomain)
             
         
         }

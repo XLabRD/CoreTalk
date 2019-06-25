@@ -26,6 +26,7 @@ class ServiceManager {
     
     func attach(service: CoreTalkService) {
         self.services.append(service)
+        
         print("[ServicePool] \(service.serviceName) Service now attached")
         
     }
@@ -51,6 +52,16 @@ class ServiceManager {
         
         service.handle(message: message, source: &source, pool: pool)
         return .ok
+    }
+    
+    func publish(notificationType: CoreTalkNotificationType, for connection:Connection) {
+        let candidates = self.services.filter { $0.notificationSubscriptions != nil }
+        
+        let targets = candidates.filter { $0.notificationSubscriptions?.contains(notificationType) == true }
+        
+        for target in targets {            
+            target.handleNotification(notification: notificationType, for: connection)
+        }
     }
     
     func serviceRespondingTo(verb: String) -> CoreTalkService? {

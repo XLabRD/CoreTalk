@@ -8,7 +8,9 @@
 import Vapor
 
 class ScheduleQueue {
-    static let defaultQueue = ScheduleQueue()
+    static let sharedQueue = ScheduleQueue()
+    internal init() {} //Singleton
+    
     private var queue = [ScheduledTask]()
     
     func enqueue(task: ScheduledTask) {
@@ -54,7 +56,7 @@ class ScheduledTask: Equatable {
         })
         
         timer.resume()
-        let dq = ScheduleQueue.defaultQueue
+        let dq = ScheduleQueue.sharedQueue
         dq.enqueue(task: self)
         
     }
