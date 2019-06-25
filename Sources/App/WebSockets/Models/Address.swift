@@ -8,36 +8,32 @@
 import Vapor
 
 
-struct Address: Equatable {
+struct Address: Equatable, Encodable {
     //Setup
     private static let WildCard: Character = "*"
     private static let AddressSeparator:Character = "."
     private static let AllowedSpaces:UInt8 = 3
     //Setup
     
-    private let value: String
+     let address: String
     
-    var address:String {
-        get {
-            return self.value
-        }
-    }
+
     
     init?(_ address: String) {
         if address.split(separator: Address.AddressSeparator).count != Address.AllowedSpaces {
             return nil            
         }
         
-        self.value = address
+        self.address = address
     }
     
     static func == (lhs: Address, rhs: Address) -> Bool {
-        if lhs.value == rhs.value { return true }
+        if lhs.address == rhs.address { return true }
         return false
     }
     
     func isMember(of query: String) -> Bool {
-        let valueElements = value.split(separator: Address.AddressSeparator)
+        let valueElements = address.split(separator: Address.AddressSeparator)
         let queryElements = query.split(separator: Address.AddressSeparator)
         
         for (index, queryElement) in queryElements.enumerated() {

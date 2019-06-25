@@ -8,6 +8,9 @@ import Foundation
 
 
 class Authentication: CoreTalkService {
+    
+
+    
     static var permissionRequired = false
     static var serviceName: String = "Authentication"
     var defaultAccessPermissions = [CoreTalkService.Type]()
@@ -20,7 +23,9 @@ class Authentication: CoreTalkService {
         if let verb = message.verb {
             switch verb {
             case "auth":
-                source.confirmed = true                
+                source.confirmed = true
+                source.address = Address("1.1.1")
+                source.send(object: source.address!)
             default:
                 return
             }
