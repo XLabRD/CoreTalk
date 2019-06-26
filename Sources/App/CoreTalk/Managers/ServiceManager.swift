@@ -46,7 +46,7 @@ class ServiceManager {
             return .serviceNotFound
         }
         
-        if service.self.permissionRequired == true &&  Permission.can(connection: source, .access, in: service) == false {
+        if service.self.accessPermissionRequired == true &&  Permission.can(connection: source, .access, in: service) == false {
             return .permissionDenied
         }
         

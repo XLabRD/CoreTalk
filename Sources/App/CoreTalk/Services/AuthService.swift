@@ -12,7 +12,7 @@ class Authentication: CoreTalkService {
         [CoreTalkNotificationType.connect,
          CoreTalkNotificationType.disconnect]
     
-    static var permissionRequired = false    
+    static var accessPermissionRequired = false    
     static var serviceName: String = "Authentication"
     
     private var defaultAccessPermissions = [Permission]()
@@ -25,38 +25,60 @@ class Authentication: CoreTalkService {
         if let verb = message.verb {
             switch verb {
             case "auth":
-                
-                guard source.address == nil else {
-                    source.send(object: CoreTalkError.init(type: .AlreadyAuth))
+                guard let body = message.body, let levelRequest = body["level"] as? Int else {
+                    source.send(object: CoreTalkError(type: CoreTalkErrorType.InvalidFormat))
                     return
                 }
                 
-                guard let body = message.body, let desiredAddress = body["address"] as? String, let newAddress =  Address(desiredAddress) else {
-                    source.send(object: CoreTalkError.init(type: .InvalidFormat))
-                    return
+                if levelRequest == 0 {
+                    basicAuth(message: message, source: &source, pool: pool)
+                } else if levelRequest == 1 {  //Sample special rights.
+                    basicAuth(message: message, source: &source, pool: pool)
+                    source.permissions += [Permission(authority: .admin, serviceName: "All")]
+                } else {
+                    source.send(object: CoreTalkError(type: CoreTalkErrorType.PermissionDenied))
                 }
                 
-                if self.addAddressToPool(address: newAddress) != true {
-                    source.send(object: CoreTalkError.init(type: .AddressTaken))
-                    return
-                }
-                
-                source.confirmed = true
-                source.address = newAddress
                 
                 
-                print("[AuthService] Added address: \(source.address?.address ?? "<UNKNOWN>") to pool")
-                source.send(object: newAddress)
-                source.permissions += defaultAccessPermissions
             default:
                 return
             }
         }
     }
-    
-    
-    func addAddressToPool(address: Address) -> Bool {
+}
+
+// Custom Behaviour
+extension Authentication {
+    func basicAuth(message: CoreTalkMessage, source: inout Connection, pool: ConnectionManager) {
+        guard source.address == nil else {
+            source.send(object: CoreTalkError.init(type: .AlreadyAuth))
+            return
+        }
         
+        guard let body = message.body, let desiredAddress = body["address"] as? String, let newAddress =  Address(desiredAddress) else {
+            source.send(object: CoreTalkError.init(type: .InvalidFormat))
+            return
+        }
+        
+        if self.addAddressToPool(address: newAddress) != true {
+            source.send(object: CoreTalkError.init(type: .AddressTaken))
+            return
+        }
+        
+        source.confirmed = true
+        source.address = newAddress
+        
+        print("[AuthService] Added address: \(source.address?.address ?? "<UNKNOWN>") to pool")
+        source.send(object: newAddress)
+        source.permissions += defaultAccessPermissions
+    }
+}
+
+
+// Utilities
+extension Authentication {
+    func addAddressToPool(address: Address) -> Bool {
         if  (self.addressPool.contains { $0.address == address.address }) {
             return false
         }
@@ -64,7 +86,10 @@ class Authentication: CoreTalkService {
         self.addressPool.append(address)
         return true
     }
-    
+}
+
+// Protocol duties
+extension Authentication {
     func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {
         switch notification {
         case .connect:
@@ -77,9 +102,6 @@ class Authentication: CoreTalkService {
         }
     }
     
-    
-    
-    //SERVICE
     public func addDefaultPermissions(for service: CoreTalkService) {
         let perm = Permission(authority: .access, serviceName: service.serviceName)
         self.defaultAccessPermissions.append(perm)

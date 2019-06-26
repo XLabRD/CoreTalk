@@ -12,7 +12,7 @@ import Foundation
 class Ping: CoreTalkService {
     var notificationSubscriptions: [CoreTalkNotificationType]?
     static var serviceName: String = "PingPong"
-    static var permissionRequired = true
+    static var accessPermissionRequired = true
     var serviceId = UUID()
     
     internal struct PongBody: Encodable {

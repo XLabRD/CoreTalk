@@ -19,7 +19,7 @@ protocol CoreTalkService {
     var notificationSubscriptions: [CoreTalkNotificationType]? {get set}
     var serviceId: UUID { get set }
     var respondsTo: [String] { get set }
-    static var permissionRequired: Bool {get set}     
+    static var accessPermissionRequired: Bool {get set}     
     
     
     func handle(message:CoreTalkMessage, source: inout Connection, pool:ConnectionManager)
@@ -33,9 +33,9 @@ extension CoreTalkService {
         }
     }
     
-    var permissionRequired: Bool {
+    var accessPermissionRequired: Bool {
         get {
-            return type(of: self).permissionRequired
+            return type(of: self).accessPermissionRequired
         }
     }
     
