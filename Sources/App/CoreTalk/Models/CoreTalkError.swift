@@ -7,7 +7,7 @@
 
 import Vapor
 
-enum CoreTalkErrorType {
+enum CoreTalkErrorType:Int, Codable {
     case InvalidFormat
     case ServiceNotFound
     case PermissionDenied

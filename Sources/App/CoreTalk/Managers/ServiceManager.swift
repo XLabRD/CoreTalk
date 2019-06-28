@@ -37,7 +37,7 @@ class ServiceManager {
         print("[ServicePool] \(service.serviceName) Service now DETACHED")
     }
     
-    func handle(message: CoreTalkMessage,  source: inout Connection, pool: ConnectionManager) -> HandleResult {
+    func handle(message: CoreTalkMessage,  source: inout Connection, pool: ClientManager, req: Request) -> HandleResult {
         guard let verb = message.verb else {
             return .invalidFormat
         }
@@ -50,7 +50,7 @@ class ServiceManager {
             return .permissionDenied
         }
         
-        service.handle(message: message, source: &source, pool: pool)
+        service.handle(message: message, source: &source, pool: pool, req: req)
         return .ok
     }
     

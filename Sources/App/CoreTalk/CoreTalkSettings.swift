@@ -13,6 +13,7 @@ struct CoreTalkSettings {
     static let ServerName = "CoreTalk"
     static let EndPoint = "coretalk"
     static let AuthSandboxTimeOut = 5
+    static let ServerAdminAddress = "server.admin.root"
     static let ServerDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
     static let ErrorDefaultDomain = "ct.err"
     static let AddressWildCard: Character = "*"

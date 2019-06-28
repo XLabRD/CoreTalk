@@ -19,14 +19,14 @@ protocol CoreTalkService {
     var notificationSubscriptions: [CoreTalkNotificationType]? {get set}
     var serviceId: UUID { get set }
     var respondsTo: [String] { get set }
-    static var accessPermissionRequired: Bool {get set}     
+    static var accessPermissionRequired: Bool {get set}
     
-    
-    func handle(message:CoreTalkMessage, source: inout Connection, pool:ConnectionManager)
+    func handle(message:CoreTalkMessage, source: inout Connection, pool:ClientManager, req: Request)
     func handleNotification(notification: CoreTalkNotificationType, for connection: Connection)
 }
 
 extension CoreTalkService {
+        
     var serviceName: String {
         get {
             return type(of: self).serviceName
@@ -39,6 +39,5 @@ extension CoreTalkService {
         }
     }
     
-    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {}
-    
+    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {}    
 }

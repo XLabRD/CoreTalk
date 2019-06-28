@@ -8,7 +8,7 @@
 import Vapor
 
 
-class ConnectionManager {
+class ClientManager {
     private var connections = [Connection]()
     
     var count: Int {
@@ -41,15 +41,8 @@ class ConnectionManager {
     }
     
     func detach(socket: WebSocket) {
-        
         self.connections.removeAll { $0.socket === socket }
         print("[ConnectionPool] Socket closed. Detached Connection. Remain: \(self.connections.count) Active")
-////        let indexOf = self.findConnectionIndex(from: socket)
-//
-//        if let idx = indexOf {
-//            self.connections.remove(at: idx)
-//
-//        }
     }
     
     

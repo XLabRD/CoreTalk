@@ -5,7 +5,7 @@
 //  Created by Francisco Lobo on 6/21/19.
 //
 
-import Foundation
+import Vapor
 
 
 
@@ -25,7 +25,7 @@ class Ping: CoreTalkService {
     
     var respondsTo = ["ping"]
     
-    func handle(message: CoreTalkMessage, source: inout Connection, pool: ConnectionManager) {
+    func handle(message: CoreTalkMessage, source: inout Connection, pool: ClientManager, req: Request) {
         if let verb = message.verb {
             switch verb {
             case "ping":

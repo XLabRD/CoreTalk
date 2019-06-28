@@ -5,21 +5,27 @@
 //  Created by Francisco Lobo on 6/12/19.
 //
 
-struct Permission {
-    enum Authority {
+struct Permission: Codable {
+    internal enum Authority: Int, Codable {
         case access
+        case execute
         case read
         case write
         case update
         case delete
         case admin
     }
+    
     let authority: Authority
     let serviceName: String
     
     
-    static func can(connection: Connection, _ authority: Authority, in service: CoreTalkService ) -> Bool {
-        let allowedPermissions = connection.permissions
+    static func can(connection: Connection, _ authority: Authority, in service: CoreTalkService) -> Bool {
+        guard let client = connection.client else {
+            return false
+        }
+        let allowedPermissions = client.permissions 
+        
         let service = type(of: service)
         let permissionsForService = allowedPermissions.filter { $0.serviceName == service.serviceName }
         

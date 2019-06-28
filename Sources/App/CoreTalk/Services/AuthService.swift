@@ -15,32 +15,18 @@ class Authentication: CoreTalkService {
     static var accessPermissionRequired = false    
     static var serviceName: String = "Authentication"
     
-    private var defaultAccessPermissions = [Permission]()
+    //    private var defaultAccessPermissions = [Permission]()
     private var addressPool = [Address]()
+    private var gateKeeper = GateKeeper()
     
     var serviceId = UUID()
     var respondsTo = ["auth"]
     
-    func handle(message: CoreTalkMessage, source: inout Connection, pool: ConnectionManager) {
+    func handle(message: CoreTalkMessage, source: inout Connection, pool: ClientManager, req: Request) {
         if let verb = message.verb {
             switch verb {
             case "auth":
-                guard let body = message.body, let levelRequest = body["level"] as? Int else {
-                    source.send(object: CoreTalkError(type: CoreTalkErrorType.InvalidFormat))
-                    return
-                }
-                
-                if levelRequest == 0 {
-                    basicAuth(message: message, source: &source, pool: pool)
-                } else if levelRequest == 1 {  //Sample special rights.
-                    basicAuth(message: message, source: &source, pool: pool)
-                    source.permissions += [Permission(authority: .admin, serviceName: "All")]
-                } else {
-                    source.send(object: CoreTalkError(type: CoreTalkErrorType.PermissionDenied))
-                }
-                
-                
-                
+                basicAuth(message: message, source: source, pool: pool, req: req)
             default:
                 return
             }
@@ -50,8 +36,8 @@ class Authentication: CoreTalkService {
 
 // Custom Behaviour
 extension Authentication {
-    func basicAuth(message: CoreTalkMessage, source: inout Connection, pool: ConnectionManager) {
-        guard source.address == nil else {
+    func basicAuth(message: CoreTalkMessage, source: Connection, pool: ClientManager, req: Request) {
+        guard source.client?.address == nil else {
             source.send(object: CoreTalkError.init(type: .AlreadyAuth))
             return
         }
@@ -61,17 +47,38 @@ extension Authentication {
             return
         }
         
-        if self.addAddressToPool(address: newAddress) != true {
-            source.send(object: CoreTalkError.init(type: .AddressTaken))
-            return
-        }
         
-        source.confirmed = true
-        source.address = newAddress
+        self.gateKeeper.getClient(from: newAddress, req: req) { client in
+            if let client = client {
+                
+                if let clientHostname = client.hostname { //Has a requirement
+                    if let currentHostName = source.currentHostName { //Unweap current
+                        if currentHostName != clientHostname { //No Match?
+                            print("[AuthService] Connection blocked. Hostname missmatch \(clientHostname) -> \(currentHostName)")
+                            source.send(object: CoreTalkError.init(type: .PermissionDenied))
+                            return
+                        }
+                    }
+                }
+                
+                if self.addAddressToPool(address: newAddress) != true {
+                    source.send(object: CoreTalkError.init(type: .AddressTaken)) //Maybe permission denied?
+                    return
+                }
+                
+                let permissions = client.permissions
+                source.client?.permissions += permissions
+                source.confirmed = true
+                source.send(object: newAddress.asDictionary())
+                source.client = client
+                print("[Auth] New Connection Authenticated as: \(client.address ?? "<<UNKNOWN>>")")
+            } else {
+                source.send(object: CoreTalkError.init(type: .PermissionDenied))
+            }
+        }      
         
-        print("[AuthService] Added address: \(source.address?.address ?? "<UNKNOWN>") to pool")
-        source.send(object: newAddress)
-        source.permissions += defaultAccessPermissions
+        
+        
     }
 }
 
@@ -79,7 +86,7 @@ extension Authentication {
 // Utilities
 extension Authentication {
     func addAddressToPool(address: Address) -> Bool {
-        if  (self.addressPool.contains { $0.address == address.address }) {
+        if  (self.addressPool.contains { $0 == address }) {
             return false
         }
         
@@ -95,15 +102,15 @@ extension Authentication {
         case .connect:
             break
         case .disconnect:
-            if let address = connection.address {
+            if let address = connection.client?.address {
                 self.addressPool.removeAll { $0 == address }
-                print("[AuthService] Removed address: \(address.address) from pool")
+                print("[AuthService] Removed address: \(address) from pool")
             }
         }
     }
     
-    public func addDefaultPermissions(for service: CoreTalkService) {
-        let perm = Permission(authority: .access, serviceName: service.serviceName)
-        self.defaultAccessPermissions.append(perm)
-    }
+    //    public func addDefaultPermissions(for service: CoreTalkService) {
+    //        let perm = Permission(authority: .access, serviceName: service.serviceName)
+    //        self.defaultAccessPermissions.append(perm)
+    //    }
 }

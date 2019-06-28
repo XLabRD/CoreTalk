@@ -3,8 +3,9 @@ import Vapor
 
 
 class CoreTalkServer {
-    private var connections = ConnectionManager()
+    private var connections = ClientManager()
     private var services = ServiceManager()
+    private var gateKeeper = GateKeeper()
     
     init(with coreTalkServices: [CoreTalkService]) {        
         for service in coreTalkServices {
@@ -19,9 +20,11 @@ class CoreTalkServer {
             
             let connection = Connection(socket: ws)
             print("[SocketServer] Socket open")
+            connection.currentHostName = req.http.remotePeer.hostname
             self.connections.attach(connection: connection)
             connection.send(object: CoreHandshake())
             self.services.publish(notificationType: .connect, for: connection)
+                        
             
             ws.onClose.always {
                 print("[SocketServer] Socket Closed")
@@ -35,7 +38,7 @@ class CoreTalkServer {
                     return
                 }
                 
-                let result =  self.services.handle(message: ct, source: &source, pool: self.connections)
+                let result =  self.services.handle(message: ct, source: &source, pool: self.connections, req: req)
                 if result != .ok {
                     switch result {
                     case .invalidFormat:

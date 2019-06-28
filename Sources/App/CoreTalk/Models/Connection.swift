@@ -9,14 +9,13 @@ import Vapor
 
 // CONNECTION MODEL
 // ###############################
-class Connection: Equatable {
+final class Connection: Equatable  {
+    var id: Int?
+    var currentHostName:String?
     var confirmed = false
     let socket: WebSocket
-    var permissions = [Permission]()
-    var address: Address?
+    var client: Client?
 
-    
-    
     init(socket: WebSocket) {
         self.socket = socket                
     }
