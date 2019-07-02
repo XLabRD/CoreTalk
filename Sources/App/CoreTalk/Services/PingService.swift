@@ -25,12 +25,12 @@ class Ping: CoreTalkService {
     
     var respondsTo = ["ping"]
     
-    func handle(message: CoreTalkMessage, source: inout Connection, pool: ClientManager, req: Request) {
+    func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
         if let verb = message.verb {
             switch verb {
             case "ping":
                 let pong = Pong()
-                source.send(WireMessage.encode(object: pong))
+                source.send(object: pong)
             default:
                 return
             }

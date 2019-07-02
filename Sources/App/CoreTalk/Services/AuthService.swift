@@ -20,13 +20,15 @@ class Authentication: CoreTalkService {
     private var gateKeeper = GateKeeper()
     
     var serviceId = UUID()
-    var respondsTo = ["auth"]
+    var respondsTo = ["auth","addClient"]
     
-    func handle(message: CoreTalkMessage, source: inout Connection, pool: ClientManager, req: Request) {
+    func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
         if let verb = message.verb {
             switch verb {
             case "auth":
                 basicAuth(message: message, source: source, pool: pool, req: req)
+            case "addClient":
+                addClient(message: message, source: source, pool: pool, req: req)
             default:
                 return
             }
@@ -34,9 +36,61 @@ class Authentication: CoreTalkService {
     }
 }
 
+
+extension Authentication { //ABC Clients
+    func addClient<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
+        guard let desiredAddress = message.body?["address"] as? Address, let forService = message.body?["service"] as? String, let withLevel =
+            message.body?["level"] as? Int else {
+            source.send(object: CoreTalkError.init(type: .InvalidFormat))
+            return
+        }
+        
+        gateKeeper.getClient(from: desiredAddress, req: req) { client in
+            guard let desiredAuthority = Permission.Authority.init(rawValue: withLevel) else {
+                source.send(object: CoreTalkError.init(type: .InvalidFormat))
+                return
+            }
+            
+            var myClient = client
+            if myClient == nil {
+              myClient = Client()
+            }
+            
+            let contains = client?.permissions.contains { element in
+                if (element.serviceName == forService && (element.authority == desiredAuthority)) { return true }
+                return false
+            }
+            
+            if contains == true {
+                source.send(object: CoreTalkError.init(code: 100, text: "Client Already Register for that permission", domain: "ct.err.auth"))
+                return
+            }
+            
+            _ = Client.query(on: req).all().map { clients in
+                for client in clients {
+                    print ("--> \(client.address!) == \(client.permissions.first!)")
+                }
+            }
+            
+            
+            myClient?.address = desiredAddress
+            myClient?.permissions = [Permission]()
+            myClient?.permissions = [Permission(authority: desiredAuthority, serviceName: forService)]
+            //HOSTNAME?
+            _ = myClient?.save(on: req).map { newClient in
+                source.send(object: newClient)
+            }
+            
+        }
+        
+        
+    }
+}
+
 // Custom Behaviour
 extension Authentication {
-    func basicAuth(message: CoreTalkMessage, source: Connection, pool: ClientManager, req: Request) {
+    func basicAuth<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
+        
         guard source.client?.address == nil else {
             source.send(object: CoreTalkError.init(type: .AlreadyAuth))
             return

@@ -21,7 +21,7 @@ protocol CoreTalkService {
     var respondsTo: [String] { get set }
     static var accessPermissionRequired: Bool {get set}
     
-    func handle(message:CoreTalkMessage, source: inout Connection, pool:ClientManager, req: Request)
+    func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool:ClientManager, req: Request)
     func handleNotification(notification: CoreTalkNotificationType, for connection: Connection)
 }
 

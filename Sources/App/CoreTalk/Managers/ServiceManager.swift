@@ -38,6 +38,7 @@ class ServiceManager {
     }
     
     func handle(message: CoreTalkMessage,  source: inout Connection, pool: ClientManager, req: Request) -> HandleResult {
+        
         guard let verb = message.verb else {
             return .invalidFormat
         }
@@ -49,7 +50,7 @@ class ServiceManager {
         if service.self.accessPermissionRequired == true &&  Permission.can(connection: source, .access, in: service) == false {
             return .permissionDenied
         }
-        
+                
         service.handle(message: message, source: &source, pool: pool, req: req)
         return .ok
     }
@@ -67,8 +68,7 @@ class ServiceManager {
     func serviceRespondingTo(verb: String) -> CoreTalkService? {
         let found = self.services
             .compactMap { $0 }
-            .filter { $0.respondsTo.contains(verb) }
-        
+            .filter { $0.respondsTo.contains(verb) }        
         return found.first
     }
     

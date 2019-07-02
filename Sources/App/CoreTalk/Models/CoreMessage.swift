@@ -1,10 +1,12 @@
 
 import Vapor
 
-protocol CoreTalkRepresentable: Codable {
+protocol CoreTalkRepresentable where Self: Codable {
+    associatedtype BodyType
+    
     var verb: String? { get  }
     var raw: String? { get set }
-    var body: [String:Any]? { get }
+    var body: [String: BodyType]? { get }
 }
 
 
@@ -12,6 +14,7 @@ extension CoreTalkRepresentable {
     var verb:String? {
         get {
             guard let raw = self.raw else {
+                print("FOUND NIL")
                 return nil
             }
             do {
@@ -37,7 +40,7 @@ extension CoreTalkRepresentable {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
                 if let object = json as? [String: Any] {
                     if let verb = self.verb {
-                        return object[verb] as? [String:Any]
+                        return object[verb] as? [String: Any]
                     }
                 }
             } catch {
@@ -49,15 +52,8 @@ extension CoreTalkRepresentable {
     
 }
 
-struct CoreTalkMessage: CoreTalkRepresentable  {    
+struct CoreTalkMessage: CoreTalkRepresentable  {
     var raw: String?
-}
-
-struct WireMessage { //Send to client
-    static func encode<T: Encodable>(object: T) -> String {
-        let jsonData = try! JSONEncoder().encode(object)
-        return String(data: jsonData, encoding: .utf8)!
-    }
 }
 
 

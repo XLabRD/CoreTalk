@@ -14,6 +14,7 @@ enum CoreTalkErrorType:Int, Codable {
     case AuthTimeout
     case AddressTaken
     case AlreadyAuth
+    case NotFound
     case Unknown
 }
 
@@ -41,6 +42,8 @@ struct CoreTalkError: Encodable {
             self.error = CoreErrorBody(code: 602, text: "Address Taken", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .AlreadyAuth:
             self.error = CoreErrorBody(code: 602, text: "Already authenticated", domain: CoreTalkSettings.ErrorDefaultDomain)
+        case .NotFound:
+            self.error = CoreErrorBody(code: 603, text: "Not Found", domain: CoreTalkSettings.ErrorDefaultDomain)
         case .Unknown:
             self.error = CoreErrorBody(code: 800, text: "Unknown Error", domain: CoreTalkSettings.ErrorDefaultDomain)
             
