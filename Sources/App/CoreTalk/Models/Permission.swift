@@ -5,8 +5,8 @@
 //  Created by Francisco Lobo on 6/12/19.
 //
 
-struct Permission: Codable {
-    internal enum Authority: Int, Codable {
+struct Permission: Codable, Equatable {
+    internal enum Authority: Int, Codable, Equatable {
         case access
         case execute
         case read

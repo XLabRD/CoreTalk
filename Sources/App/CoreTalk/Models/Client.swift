@@ -24,7 +24,6 @@ extension Client: Migration {
             try addProperties(to: builder)
             }.always {
                 let client = Client()
-//                client.hostname = "::1" //Only local host
                 client.address = CoreTalkSettings.ServerAdminAddress
                 client.permissions += [Permission(authority: .admin, serviceName: CoreTalkSettings.ServerName)]
                 client.save(on: connection).always {
@@ -38,4 +37,3 @@ extension Client: Migration {
         return .done(on: connection)
     }
 }
-

@@ -7,7 +7,7 @@
 
 import Vapor
 
-enum CoreTalkErrorType:Int, Codable {
+enum CoreTalkErrorType:Int, Codable, Error {
     case InvalidFormat
     case ServiceNotFound
     case PermissionDenied
@@ -18,7 +18,7 @@ enum CoreTalkErrorType:Int, Codable {
     case Unknown
 }
 
-struct CoreTalkError: Encodable {
+struct CoreTalkError: Encodable, Error {
     var error: CoreErrorBody
     
     init(code: Int, text: String) {
@@ -54,7 +54,7 @@ struct CoreTalkError: Encodable {
     
 }
 
-struct CoreErrorBody: Encodable {
+struct CoreErrorBody: Encodable, Error {
     var code: Int
     var text: String
     var domain: String

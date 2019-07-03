@@ -14,7 +14,7 @@ extension CoreTalkRepresentable {
     var verb:String? {
         get {
             guard let raw = self.raw else {
-                print("FOUND NIL")
+                print("[CoreTalkRepresentable] FOUND NIL")
                 return nil
             }
             do {
