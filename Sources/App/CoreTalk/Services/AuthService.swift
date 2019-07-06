@@ -21,15 +21,13 @@ class Authentication: CoreTalkService {
     private var gateKeeper = GateKeeper()
     
     var serviceId = UUID()
-    var respondsTo = ["auth","addClient","addPermission","removePermission"]
+    var respondsTo = ["auth","addPermission","removePermission"]
     
     func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
         if let verb = message.verb {
             switch verb {
             case "auth":
                 basicAuth(message: message, source: source, pool: pool, req: req)
-            case "addClient":
-                addClient(message: message, source: source, pool: pool, req: req)
             case "addPermission":
                 addPermission(message: message, source: source, pool: pool, req: req)
             case "removePermission":
@@ -43,6 +41,31 @@ class Authentication: CoreTalkService {
 
 
 extension Authentication { //ABC Clients
+    func removeClient<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
+        guard let desiredAddress = message.body?["address"] as? Address else {
+            source.send(object: CoreTalkError(type: .InvalidFormat))
+            return
+        }
+        
+        if desiredAddress == source.client?.address {
+           source.send(object: CoreTalkError(code: 104, text: "Can't delete your own address", domain: "auth.err"))
+            return
+        }
+        
+        
+        gateKeeper.getClient(from: desiredAddress, req: req) { client in
+            guard let client = client else {
+                source.send(object: CoreTalkError(code: 105, text: "Client not found", domain: "auth.err"))
+                return
+            }
+            _ =
+                client.delete(on: req).map {
+                source.send(object: akn())
+            }
+        }
+        
+    }
+    
     func addClient<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
         guard let desiredAddress = message.body?["address"] as? Address else {
             source.send(object: CoreTalkError(type: .InvalidFormat))

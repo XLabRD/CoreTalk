@@ -37,10 +37,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     let ping = Ping()
     let auth = Authentication()
+    let admin = Admin()
     
-//    auth.addDefaultPermissions(for: ping)
-    
-    let crServices:[CoreTalkService] = [ping, auth]
+    let crServices:[CoreTalkService] = [ping, auth, admin]
     
     //CORETALK
     let socketManager = CoreTalkServer(with: crServices)

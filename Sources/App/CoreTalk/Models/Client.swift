@@ -15,6 +15,7 @@ final class Client: SQLiteUUIDModel {
     var hostname: String?
 }
 
+
 extension Client: Content {}
 extension Client: Migration {
     typealias Database = SQLiteDatabase
@@ -37,3 +38,4 @@ extension Client: Migration {
         return .done(on: connection)
     }
 }
+

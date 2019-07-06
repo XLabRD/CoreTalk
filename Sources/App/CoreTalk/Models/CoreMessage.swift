@@ -63,3 +63,12 @@ struct CoreHandshake: Encodable {
     let version = CoreTalkSettings.ServerVersion
     let timeStamp = Date().ctStringValue()    
 }
+
+struct akn: Encodable {
+    let ok = Date().ctStringValue()
+}
+
+struct ServerMessage: Encodable {
+    let message: String
+    let code: Int?
+}

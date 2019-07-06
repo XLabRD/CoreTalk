@@ -17,6 +17,10 @@ class ClientManager {
         }
     }
     
+    func all() -> [Connection] {
+        return self.connections
+    }
+    
     func attach(connection: Connection) {        
         self.connections.append(connection)        
         print("[ConnectionPool] Attached connection. Active: \(self.connections.count) Active")
@@ -48,6 +52,15 @@ class ClientManager {
     
     func findConnection(from socket: WebSocket) -> Connection? {
         let foundConnections = connections.filter { $0.socket === socket }
+        if foundConnections.count <= 0 {
+            return nil
+        }
+        
+        return foundConnections.first
+    }
+    
+    func findConnection(from address: Address) -> Connection? {
+        let foundConnections = connections.filter { $0.client?.address == address }
         if foundConnections.count <= 0 {
             return nil
         }
