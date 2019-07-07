@@ -161,7 +161,7 @@ extension Admin { //ABC Clients
             }
             _ =
                 client.delete(on: req).map {
-                    source.send(object: akn())
+                    source.send(object: AKN())
             }
         }
     }
@@ -236,7 +236,7 @@ extension Admin { //ABC Clients
         if let conn = conn {
             conn.send(object: ServerMessage(message: "Connection terminated by peer", code: 0))
             conn.socket.close()
-            source.send(object: akn())
+            source.send(object: AKN())
             return
         }
         

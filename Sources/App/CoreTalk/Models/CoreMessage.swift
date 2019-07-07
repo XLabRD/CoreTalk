@@ -64,7 +64,7 @@ struct CoreHandshake: Encodable {
     let timeStamp = Date().ctStringValue()    
 }
 
-struct akn: Encodable {
+struct AKN: Encodable {
     let ok = Date().ctStringValue()
 }
 
