@@ -15,7 +15,7 @@ public enum CoreTalkNotificationType {
 
 
 public protocol Respondable {
-    static func AllCases() -> [String]
+    static func AllCases() -> [String]    
 }
 
 public extension Respondable where Self : RawRepresentable, Self: CaseIterable, Self.RawValue == String {
@@ -61,6 +61,5 @@ extension CoreTalkService {
     }
     
     func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {}
-    
     
 }

@@ -24,6 +24,15 @@ class ServiceManager {
         }
     }
     
+    subscript(name: String) -> CoreTalkService? {
+        let service = services.filter({$0.serviceName == name})
+        return service.first
+    }
+    
+    subscript(index: Int) -> CoreTalkService? {
+        return self.services[index]
+    }
+    
     func attach(services:[CoreTalkService]) {
         for var service in services {
             self.attach(service: &service)
@@ -74,7 +83,7 @@ class ServiceManager {
     func serviceRespondingTo(verb: String) -> CoreTalkService? {        
         for service in self.services {
             let list = service.responses.AllCases()
-            if list.contains(where: { $0 == verb}) {
+            if list.contains(where: { $0 == verb}) {                
                 return service
             }
         }

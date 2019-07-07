@@ -33,7 +33,7 @@ class CoreTalkServer {
             
             ws.onText { ws, text in
                 let ct = CoreTalkMessage(raw: text)
-                guard var source = self.connections.findConnection(from: ws) else {
+                guard var source = self.connections[ws] else {
                     return
                 }
                 

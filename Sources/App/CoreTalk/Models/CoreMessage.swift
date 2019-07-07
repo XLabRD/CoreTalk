@@ -65,7 +65,17 @@ struct CoreHandshake: Encodable {
 }
 
 struct AKN: Encodable {
-    let ok = Date().ctStringValue()
+    let ok: String
+    
+    init(request:String?) {
+        guard let request = request else {
+            self.ok = "unkown"
+            return
+        }
+        
+        self.ok = request
+    }
+    
 }
 
 struct ServerMessage: Encodable {

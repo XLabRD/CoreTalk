@@ -101,7 +101,7 @@ extension Admin { //ABC Clients
             
             _ = client.save(on: req).map { newClient in
                 source.send(object: newClient)
-                let activeClient = pool.findConnection(from: address)
+                let activeClient = pool[address]
                 activeClient?.client = newClient
             }
         }
@@ -136,7 +136,7 @@ extension Admin { //ABC Clients
             
             _ = client.save(on: req).map { newClient in
                 source.send(object: newClient)
-                let activeClient = pool.findConnection(from: address)
+                let activeClient = pool[address]
                 activeClient?.client = newClient
             }
         }
@@ -161,7 +161,7 @@ extension Admin { //ABC Clients
             }
             _ =
                 client.delete(on: req).map {
-                    source.send(object: AKN())
+                    source.send(object: AKN(request: message.verb))
             }
         }
     }
@@ -188,7 +188,7 @@ extension Admin { //ABC Clients
     }
     
     func listServices<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        source.send(object: self.manager?.serviceNames())
+        source.send(object: ["services":self.manager?.serviceNames()])
     }
     
     func listClients<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
@@ -203,26 +203,16 @@ extension Admin { //ABC Clients
                 clean.append(address)
                 
             }
-            source.send(object: clean)
+            source.send(object: ["clients":clean])
         }
     }
     
     func listConnections<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        var clean = [String]()
-        
-        for conn in pool.all() {
-            guard let address = conn.client?.address else {
-                break
-            }
-            
-            clean.append(address)
-            
-        }
-        source.send(object: clean)
+        source.send(object: ["connections":pool.list()])
     }
     
     func connectionCount<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        source.send(object: ["count":pool.all().count])
+        source.send(object: ["connectionCount":pool.count])
     }
     
     func killConnection<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
@@ -231,12 +221,12 @@ extension Admin { //ABC Clients
             return
         }
         
-        let conn = pool.findConnection(from: desiredAddress)
+        let conn = pool[desiredAddress]
         
         if let conn = conn {
             conn.send(object: ServerMessage(message: "Connection terminated by peer", code: 0))
             conn.socket.close()
-            source.send(object: AKN())
+            source.send(object: AKN(request: message.verb))
             return
         }
         

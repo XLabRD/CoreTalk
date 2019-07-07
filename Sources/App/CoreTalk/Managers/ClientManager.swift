@@ -10,17 +10,7 @@ import Vapor
 
 class ClientManager {
     private var connections = [Connection]()
-    
-    var count: Int {
-        get {
-            return self.connections.count
-        }
-    }
-    
-    func all() -> [Connection] {
-        return self.connections
-    }
-    
+        
     func attach(connection: Connection) {        
         self.connections.append(connection)        
         print("[ConnectionPool] Attached connection. Active: \(self.connections.count) Active")
@@ -45,40 +35,40 @@ class ClientManager {
     }
     
     func detach(socket: WebSocket) {
+        socket.close()
         self.connections.removeAll { $0.socket === socket }
         print("[ConnectionPool] Socket closed. Detached Connection. Remain: \(self.connections.count) Active")
     }
     
-    
-    func findConnection(from socket: WebSocket) -> Connection? {
-        let foundConnections = connections.filter { $0.socket === socket }
-        if foundConnections.count <= 0 {
+    subscript(address: String) -> Connection? {
+        let conn =  connections.filter { $0.client?.address == address }
+        if conn.count <= 0 {
             return nil
         }
         
-        return foundConnections.first
+        return conn.first
     }
     
-    func findConnection(from address: Address) -> Connection? {
-        let foundConnections = connections.filter { $0.client?.address == address }
-        if foundConnections.count <= 0 {
+    subscript(socket: WebSocket) -> Connection? {
+        let conn =  connections.filter { $0.socket === socket }
+        if conn.count <= 0 {
             return nil
         }
         
-        return foundConnections.first
+        return conn.first
     }
     
-    func findConnectionIndex(from socket: WebSocket) -> Int? {
-        let foundConnections = connections.filter { $0.socket === socket }
-        
-        if foundConnections.count <= 0 {
-            return nil
+    
+    var count: Int {
+        get {
+            return self.connections.count
         }
-        
-        if let fc = foundConnections.first {
-            return self.connections.firstIndex(of: fc)
-        }
-        
-        return nil
     }
+    
+    
+    func list() -> [Address] {
+        let flat = self.connections.compactMap({$0.client?.address})
+        return flat
+    }
+    
 }
