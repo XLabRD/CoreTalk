@@ -4,13 +4,12 @@ import Vapor
 
 class CoreTalkServer {
     private var connections = ClientManager()
-    private var services = ServiceManager()
+    private var services: ServiceManager
     private var gateKeeper = GateKeeper()
-    
-    init(with coreTalkServices: [CoreTalkService]) {        
-        for service in coreTalkServices {
-            self.services.attach(service: service)
-        }
+        
+    init(with serviceManager: ServiceManager) {
+        self.services = serviceManager
+        
         print("[SocketServer] Boot Complete")
     }
     

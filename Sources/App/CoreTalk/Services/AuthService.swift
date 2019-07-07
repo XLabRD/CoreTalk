@@ -9,6 +9,12 @@ import FluentSQLite
 
 
 class Authentication: CoreTalkService {
+    var manager: ServiceManager?
+    private enum AuthResponses: String, ServiceRespondable {
+        case auth        
+    }
+    var responses: Respondable.Type = AuthResponses.self
+
     var notificationSubscriptions: [CoreTalkNotificationType]? =
         [CoreTalkNotificationType.connect,
          CoreTalkNotificationType.disconnect]
@@ -16,22 +22,17 @@ class Authentication: CoreTalkService {
     static var accessPermissionRequired = false    
     static var serviceName: String = "Authentication"
     
-    //    private var defaultAccessPermissions = [Permission]()
     private var addressPool = [Address]()
     private var gateKeeper = GateKeeper()
     
     var serviceId = UUID()
-    var respondsTo = ["auth","addPermission","removePermission"]
     
     func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
+        
         if let verb = message.verb {
             switch verb {
-            case "auth":
-                basicAuth(message: message, source: source, pool: pool, req: req)
-            case "addPermission":
-                addPermission(message: message, source: source, pool: pool, req: req)
-            case "removePermission":
-                removePermission(message: message, source: source, pool: pool, req: req)
+            case AuthResponses.auth.rawValue:
+                basicAuth(message: message, source: source, pool: pool, req: req)           
             default:
                 return
             }
@@ -39,122 +40,6 @@ class Authentication: CoreTalkService {
     }
 }
 
-
-extension Authentication { //ABC Clients
-    func removeClient<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        guard let desiredAddress = message.body?["address"] as? Address else {
-            source.send(object: CoreTalkError(type: .InvalidFormat))
-            return
-        }
-        
-        if desiredAddress == source.client?.address {
-           source.send(object: CoreTalkError(code: 104, text: "Can't delete your own address", domain: "auth.err"))
-            return
-        }
-        
-        
-        gateKeeper.getClient(from: desiredAddress, req: req) { client in
-            guard let client = client else {
-                source.send(object: CoreTalkError(code: 105, text: "Client not found", domain: "auth.err"))
-                return
-            }
-            _ =
-                client.delete(on: req).map {
-                source.send(object: akn())
-            }
-        }
-        
-    }
-    
-    func addClient<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        guard let desiredAddress = message.body?["address"] as? Address else {
-            source.send(object: CoreTalkError(type: .InvalidFormat))
-            return
-        }
-        
-        gateKeeper.getClient(from: desiredAddress, req: req) { client in
-        
-            if client != nil {
-                source.send(object: CoreTalkError(code: 100, text: "Client already registered", domain: "auth.err"))
-                return
-            }
-            
-            let myClient = Client()
-            myClient.address = desiredAddress
-            _ = myClient.save(on: req).map { newClient in
-                source.send(object: newClient)
-            }
-        }
-    }
-    
-    func addPermission<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        guard let address = message.body?["address"] as? Address, let service = message.body?["service"] as? String, let level = message.body?["level"] as? Int else {
-            source.send(object: CoreTalkError(type: .InvalidFormat))
-            return
-        }
-        
-        gateKeeper.getClient(from: address, req: req) { client in
-            
-            guard let client = client else {
-                source.send(object: CoreTalkError(code: 101, text: "Client not found", domain: "auth.err"))
-                return
-            }
-            
-            guard let authority = Permission.Authority(rawValue: level) else {
-                source.send(object: CoreTalkError(code: 102, text: "Invalid Authority", domain: "auth.err"))
-                return
-            }
-            
-            let permission = Permission(authority:authority, serviceName: service)
-            
-            if (client.permissions.contains { $0 == permission }) {
-                source.send(object: CoreTalkError(code: 103, text: "Permission already assigned", domain: "auth.err"))
-                return
-            }
-            
-            
-            client.permissions += [permission]
-            
-            
-            _ = client.save(on: req).map { newClient in
-                source.send(object: newClient)
-            }
-        }
-    }
-    
-    func removePermission<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        guard let address = message.body?["address"] as? Address, let service = message.body?["service"] as? String, let level = message.body?["level"] as? Int else {
-            source.send(object: CoreTalkError(type: .InvalidFormat))
-            return
-        }
-        
-        gateKeeper.getClient(from: address, req: req) { client in
-            
-            guard let client = client else {
-                source.send(object: CoreTalkError(code: 101, text: "Client not found", domain: "auth.err"))
-                return
-            }
-            
-            guard let authority = Permission.Authority(rawValue: level) else {
-                source.send(object: CoreTalkError(code: 102, text: "Invalid Authority", domain: "auth.err"))
-                return
-            }
-            
-            let permission = Permission(authority:authority, serviceName: service)
-            
-            if (client.permissions.contains { $0 == permission }) == false {
-                source.send(object: CoreTalkError(code: 103, text: "Permission not assigned to client", domain: "auth.err"))
-                return
-            }
-            
-            client.permissions.removeAll(where:{ $0 == permission})
-            
-            _ = client.save(on: req).map { newClient in
-                source.send(object: newClient)
-            }
-        }
-    }
-}
 
 // Custom Behaviour
 extension Authentication {

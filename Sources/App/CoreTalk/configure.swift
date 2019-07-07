@@ -35,14 +35,17 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     //CORETALK
     
+    let manager = ServiceManager()
+    
     let ping = Ping()
     let auth = Authentication()
     let admin = Admin()
     
-    let crServices:[CoreTalkService] = [ping, auth, admin]
+    manager.attach(services: [ping, auth, admin])
+    
     
     //CORETALK
-    let socketManager = CoreTalkServer(with: crServices)
+    let socketManager = CoreTalkServer(with: manager)
     
     socketManager.sockets(websockets)
     services.register(websockets, as: WebSocketServer.self)

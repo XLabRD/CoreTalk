@@ -7,11 +7,15 @@
 
 import Vapor
 
-
-
 class Ping: CoreTalkService {
+    var manager: ServiceManager?
+    private enum PingResponses: String, ServiceRespondable {
+        case ping
+    }
+    var responses: Respondable.Type = PingResponses.self
+    
     var notificationSubscriptions: [CoreTalkNotificationType]?
-    static var serviceName: String = "PingPong"
+    static var serviceName: String = "Ping"
     static var accessPermissionRequired = true
     var serviceId = UUID()
     
@@ -23,12 +27,11 @@ class Ping: CoreTalkService {
         let pong = PongBody()
     }
     
-    var respondsTo = ["ping"]
     
     func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
         if let verb = message.verb {
             switch verb {
-            case "ping":
+            case PingResponses.ping.rawValue:
                 let pong = Pong()
                 source.send(object: pong)
             default:

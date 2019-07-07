@@ -15,7 +15,7 @@ class ServiceManager {
         case invalidFormat
         case serviceNotFound
     }
-        
+    
     private var services = [CoreTalkService]()
     
     var count: Int {
@@ -24,9 +24,15 @@ class ServiceManager {
         }
     }
     
-    func attach(service: CoreTalkService) {
+    func attach(services:[CoreTalkService]) {
+        for var service in services {
+            self.attach(service: &service)
+        }
+    }
+    
+    func attach(service: inout CoreTalkService) {        
+        service.manager = self
         self.services.append(service)
-        
         print("[ServicePool] \(service.serviceName) Service now attached")
         
     }
@@ -65,12 +71,20 @@ class ServiceManager {
         }
     }
     
-    func serviceRespondingTo(verb: String) -> CoreTalkService? {
-        let found = self.services
-            .compactMap { $0 }
-            .filter { $0.respondsTo.contains(verb) }        
-        return found.first
+    func serviceRespondingTo(verb: String) -> CoreTalkService? {        
+        for service in self.services {
+            let list = service.responses.AllCases()
+            if list.contains(where: { $0 == verb}) {
+                return service
+            }
+        }
+        return nil
     }
+    
+    func serviceNames() -> [String] {        
+        return self.services.compactMap { $0.serviceName }
+    }
+
     
 }
 
