@@ -7,11 +7,44 @@
 
 import Vapor
 
-
-public enum CoreTalkNotificationType {
-    case disconnect
-    case connect
+enum CoreTalkEventKind: String, Equatable {
+    case disconnections
+    case connections
+    case mutations
 }
+
+struct CoreTalkEvent {
+    var kind: CoreTalkEventKind
+    var sourceConection: Connection?
+    var sourceService: CoreTalkService?
+    var changes: [Codable]?
+}
+
+//enum CoreTalkEvent: Equatable {
+//    case disconnect
+//    case connect
+//    case mutate(service: CoreTalkService?, changes:[Codable]?)
+//
+//    public static func == (lhs: CoreTalkEvent, rhs: CoreTalkEvent) -> Bool {
+//        switch (lhs, rhs) {
+//        case (.disconnect, .disconnect):
+//            return true
+//        case (.connect, .connect):
+//            return true
+//        case (let .mutate(leftMutation, _),
+//              let .mutate(rightMutation, _)):
+//
+//            if (leftMutation?.serviceName == rightMutation?.serviceName) {
+//                return true
+//            }
+//
+//            return false
+//        default:
+//            return false
+//        }
+//
+//    }
+//}
 
 
 public protocol Respondable {
@@ -38,12 +71,12 @@ public typealias ServiceRespondable = Respondable & CaseIterable
 protocol CoreTalkService {
     var manager: ServiceManager? { get set }
     static var serviceName: String { get set }
-    var notificationSubscriptions: [CoreTalkNotificationType]? {get set}
+    var eventsToListen: [CoreTalkEventKind]? {get set}
     var serviceId: UUID { get set }
     var responses:Respondable.Type { get set }
     static var accessPermissionRequired: Bool {get set}
     func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool:ClientManager, req: Request)
-    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection)    
+    func handle(event: CoreTalkEvent)
 }
 
 extension CoreTalkService {
@@ -60,6 +93,6 @@ extension CoreTalkService {
         }
     }
     
-    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {}
+    func handle(event: CoreTalkEvent) {}
     
 }

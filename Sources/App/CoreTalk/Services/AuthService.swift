@@ -15,9 +15,9 @@ class Authentication: CoreTalkService {
     }
     var responses: Respondable.Type = AuthResponses.self
 
-    var notificationSubscriptions: [CoreTalkNotificationType]? =
-        [CoreTalkNotificationType.connect,
-         CoreTalkNotificationType.disconnect]
+    var eventsToListen: [CoreTalkEventKind]? =
+        [.connections,
+         .disconnections]
     
     static var accessPermissionRequired = false    
     static var serviceName: String = "Authentication"
@@ -84,9 +84,6 @@ extension Authentication {
                 source.send(object: CoreTalkError.init(type: .PermissionDenied))
             }
         }      
-        
-        
-        
     }
 }
 
@@ -105,15 +102,17 @@ extension Authentication {
 
 // Protocol duties
 extension Authentication {
-    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {
-        switch notification {
-        case .connect:
+    func handleEvent(event: CoreTalkEvent, for connection: Connection) {
+        switch event.kind {
+        case .connections:
             break
-        case .disconnect:
+        case .disconnections:
             if let address = connection.client?.address {
                 self.addressPool.removeAll { $0 == address }
                 print("[AuthService] Removed address: \(address) from pool")
             }
+        default:
+            break
         }
     }
 }

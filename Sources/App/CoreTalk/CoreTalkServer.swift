@@ -22,12 +22,14 @@ class CoreTalkServer {
             connection.currentHostName = req.http.remotePeer.hostname
             self.connections.attach(connection: connection)
             connection.send(object: CoreHandshake())
-            self.services.publish(notificationType: .connect, for: connection)
+            let event = CoreTalkEvent(kind: .connections, sourceConection: connection, sourceService: nil, changes: nil)
+            self.services.publish(event: event)
                         
             
             ws.onClose.always {
                 print("[SocketServer] Socket Closed")
-                self.services.publish(notificationType: .disconnect, for: connection)
+                let event = CoreTalkEvent(kind: .disconnections, sourceConection: connection, sourceService: nil, changes: nil)
+                self.services.publish(event: event)
                 self.connections.detach(socket: ws)                
             }
             

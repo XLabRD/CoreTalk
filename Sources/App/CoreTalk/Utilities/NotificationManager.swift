@@ -7,6 +7,15 @@
 //
 //import Vapor
 //
+//struct Notification {
+//    var event: String
+//    var kind: String
+//    var source: Address
+//}
+//
+//protocol Notifiable {
+//    func handleEvent(
+//}
 //
 //class NotificationManager {
 //    static let sharedManager = ScheduleQueue()
@@ -14,3 +23,5 @@
 //    private var subscribers = [Any]
 //    
 //}
+//
+//

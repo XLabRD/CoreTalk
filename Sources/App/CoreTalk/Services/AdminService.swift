@@ -24,9 +24,9 @@ class Admin: CoreTalkService {
     
     var responses: Respondable.Type = AdminResponses.self
     
-    var notificationSubscriptions: [CoreTalkNotificationType]? =
-        [CoreTalkNotificationType.connect,
-         CoreTalkNotificationType.disconnect]
+    var eventsToListen: [CoreTalkEventKind]? =
+        [.connections,
+         .disconnections]
     
     static var accessPermissionRequired = true
     static var serviceName: String = "Admin"        
@@ -238,12 +238,15 @@ extension Admin { //ABC Clients
 
 // Protocol duties
 extension Admin {
-    func handleNotification(notification: CoreTalkNotificationType, for connection: Connection) {
-        switch notification {
-        case .connect:
+    func handleEvent(event: CoreTalkEvent, for connection: Connection) {
+        switch event.kind {
+        case .connections:
             break
-        case .disconnect:
+        case .disconnections:
             break
+        default:
+            break
+            
         }
     }
 }

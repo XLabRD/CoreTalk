@@ -70,13 +70,13 @@ class ServiceManager {
         return .ok
     }
     
-    func publish(notificationType: CoreTalkNotificationType, for connection:Connection) {
-        let candidates = self.services.filter { $0.notificationSubscriptions != nil }
+    func publish(event: CoreTalkEvent) {
+        let candidates = self.services.filter { $0.eventsToListen != nil }
         
-        let targets = candidates.filter { $0.notificationSubscriptions?.contains(notificationType) == true }
+        let targets = candidates.filter { $0.eventsToListen?.contains(event.kind) == true }
         
-        for target in targets {            
-            target.handleNotification(notification: notificationType, for: connection)
+        for target in targets {
+            target.handle(event: event)
         }
     }
     

@@ -40,8 +40,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let ping = Ping()
     let auth = Authentication()
     let admin = Admin()
+    let pubsub = PubSub()
     
-    manager.attach(services: [ping, auth, admin])
+    manager.attach(services: [ping, auth, admin, pubsub])
     
     
     //CORETALK

@@ -14,7 +14,7 @@ class Ping: CoreTalkService {
     }
     var responses: Respondable.Type = PingResponses.self
     
-    var notificationSubscriptions: [CoreTalkNotificationType]?
+    var eventsToListen: [CoreTalkEventKind]?
     static var serviceName: String = "Ping"
     static var accessPermissionRequired = true
     var serviceId = UUID()
