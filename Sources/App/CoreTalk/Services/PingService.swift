@@ -9,10 +9,10 @@ import Vapor
 
 class Ping: CoreTalkService {
     var manager: ServiceManager?
-    private enum PingResponses: String, ServiceRespondable {
-        case ping
-    }
-    var responses: Respondable.Type = PingResponses.self
+//    private enum PingResponses: String, ServiceRespondable {
+//        case ping
+//    }
+//    var responses: Respondable.Type = PingResponses.self
     
     var eventsToListen: [CoreTalkEventKind]?
     static var serviceName: String = "Ping"
@@ -27,19 +27,23 @@ class Ping: CoreTalkService {
         let pong = PongBody()
     }
     
-    
-    func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
-        if let verb = message.verb {
-            switch verb {
-            case PingResponses.ping.rawValue:
-                let pong = Pong()
-                source.send(object: pong)
-            default:
-                return
-            }
-            
-        }
+    func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
+        
     }
+
+    
+//    func handle(message: Message, source: inout Connection, pool: ClientManager, req: Request) {
+//        if let verb = message.noun {
+//            switch verb {
+//            case PingResponses.ping.rawValue:
+//                let pong = Pong()
+//                source.send(object: pong)
+//            default:
+//                return
+//            }
+//            
+//        }
+//    }
 }
 
 

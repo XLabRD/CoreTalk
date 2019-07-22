@@ -15,11 +15,11 @@ fileprivate struct Subscription: Equatable {
 }
 
 class PubSub: CoreTalkService {
-    private enum PubSubResponses: String, ServiceRespondable {
-        case subscribe
-        case unsubscribe
-    }
-    var responses: Respondable.Type = PubSubResponses.self
+//    private enum PubSubResponses: String, ServiceRespondable {
+//        case subscribe
+//        case unsubscribe
+//    }
+//    var responses: Respondable.Type = PubSubResponses.self
     
     static var accessPermissionRequired: Bool = true
     
@@ -34,20 +34,25 @@ class PubSub: CoreTalkService {
     private var subscriptions = [Subscription]()
     
     
-    func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
-        if let verb = message.verb {
-            switch verb {
-            case PubSubResponses.subscribe.rawValue:
-                subscribe(message: message, source: source, pool: pool, req: req)
-                break
-            case PubSubResponses.unsubscribe.rawValue:
-                unSubscribe(message: message, source: source, pool: pool, req: req)
-                break
-            default:
-                break
-            }
-        }
+//    func handle(message: Message, source: inout Connection, pool: ClientManager, req: Request) {
+//        if let verb = message.noun {
+//            switch verb {
+//            case PubSubResponses.subscribe.rawValue:
+//                subscribe(message: message, source: source, pool: pool, req: req)
+//                break
+//            case PubSubResponses.unsubscribe.rawValue:
+//                unSubscribe(message: message, source: source, pool: pool, req: req)
+//                break
+//            default:
+//                break
+//            }
+//        }
+//    }
+    
+    func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
+        
     }
+
 }
 
 extension PubSub {
@@ -68,68 +73,75 @@ extension PubSub {
 
 
 extension PubSub {
-    func subscribe<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        if let verb = message.verb {
-            guard let serviceName = message.body?["service"] as? String, let rawKind = message.body?["kind"] as? String else {
-                source.send(object: CoreTalkError(type: .InvalidFormat))
-                return
-            }
-            
-            guard let kind = CoreTalkEventKind(rawValue: rawKind) else {
-                source.send(object: CoreTalkError(type: .InvalidFormat))
-                return
-            }
-            
-            var subscription = Subscription(subscriber: source, eventKind: kind, service: serviceName, verb: nil)
-            
-            if let aVerb = message.body?["verb"] as? String {
-                subscription.verb = aVerb
-            }
-            
-            let candidates = self.subscriptions.filter { $0 == subscription }
-            
-            if candidates.count > 0 {
-               source.send(object: CoreTalkError(code: 100, text: "Already subscribed to event", domain: "pubsub.err") )
-                return
-            }
-            
-            
-            self.subscriptions.append(subscription)
-            source.send(object: AKN(request: verb))
-            print (subscriptions)
-        }
-    }
+//    struct PubSubMessage: Message {
+//        var raw: String?
+//        let service: String
+//        let kind: String
+//    }
     
-    func unSubscribe<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
-        if let verb = message.verb {
-            guard let serviceName = message.body?["service"] as? String, let rawKind = message.body?["kind"] as? String else {
-                source.send(object: CoreTalkError(type: .InvalidFormat))
-                return
-            }
-            
-            guard let kind = CoreTalkEventKind(rawValue: rawKind) else {
-                source.send(object: CoreTalkError(type: .InvalidFormat))
-                return
-            }
-            
-            var subscription = Subscription(subscriber: source, eventKind: kind, service: serviceName, verb: nil)
-            
-            if let aVerb = message.body?["verb"] as? String {
-                subscription.verb = aVerb
-            }
-            
-            let candidates = self.subscriptions.filter { $0 == subscription  }
-            
-            
-            print(candidates)
-            if candidates.count <= 0 {
-                source.send(object: CoreTalkError(code: 101, text: "Not subscribed to event", domain: "pubsub.err") )
-                return
-            }
-            
-            
-            self.subscriptions.removeAll(where: {$0 == candidates.first})
-            source.send(object: AKN(request: verb))
-        }
-    }
+//    func subscribe(message: Message, source: Connection, pool: ClientManager, req: Request) {
+//        if let noun = message.noun {
+//            guard let serviceName = message.body?["service"] as? String, let rawKind = message.body?["kind"] as? String else {
+//                source.send(object: CoreTalkError(type: .InvalidFormat))
+//                return
+//            }
+//
+//            guard let kind = CoreTalkEventKind(rawValue: rawKind) else {
+//                source.send(object: CoreTalkError(type: .InvalidFormat))
+//                return
+//            }
+//
+//            var subscription = Subscription(subscriber: source, eventKind: kind, service: serviceName, verb: nil)
+//
+//            if let aVerb = message.body?["verb"] as? String {
+//                subscription.verb = aVerb
+//            }
+//
+//            let candidates = self.subscriptions.filter { $0 == subscription }
+//
+//            if candidates.count > 0 {
+//               source.send(object: CoreTalkError(code: 100, text: "Already subscribed to event", domain: "pubsub.err") )
+//                return
+//            }
+//
+//
+//            self.subscriptions.append(subscription)
+//            source.send(object: AKN(request: noun))
+//            print (subscriptions)
+//        }
+//    }
+//}
+//    func unSubscribe(message: Message, source: Connection, pool: ClientManager, req: Request) {
+//        if let noun = message.noun {
+//            guard let serviceName = message.body?["service"] as? String, let rawKind = message.body?["kind"] as? String else {
+//                source.send(object: CoreTalkError(type: .InvalidFormat))
+//                return
+//            }
+//
+//            guard let kind = CoreTalkEventKind(rawValue: rawKind) else {
+//                source.send(object: CoreTalkError(type: .InvalidFormat))
+//                return
+//            }
+//
+//            var subscription = Subscription(subscriber: source, eventKind: kind, service: serviceName, verb: nil)
+//
+//            if let aVerb = message.body?["verb"] as? String {
+//                subscription.verb = aVerb
+//            }
+//
+//            let candidates = self.subscriptions.filter { $0 == subscription  }
+//
+//
+//            print(candidates)
+//            if candidates.count <= 0 {
+//                source.send(object: CoreTalkError(code: 101, text: "Not subscribed to event", domain: "pubsub.err") )
+//                return
+//            }
+//
+//
+//            self.subscriptions.removeAll(where: {$0 == candidates.first})
+//            source.send(object: AKN(request: verb))
+//        }
+//    }
+//}
 }

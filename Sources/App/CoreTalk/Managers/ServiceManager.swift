@@ -47,29 +47,31 @@ class ServiceManager {
     }
     
     func detach(service: CoreTalkService) {
-        let newService = self.services.filter { $0.serviceId != service.serviceId }
+        let newService = self.services.filter { $0.serviceName != service.serviceName }
         self.services = newService
         print("[ServicePool] \(service.serviceName) Service now DETACHED")
     }
     
-    func handle(message: CoreTalkMessage,  source: inout Connection, pool: ClientManager, req: Request) -> HandleResult {
-        
-        guard let verb = message.verb else {
+    func handle(route: Route,  source: inout Connection, pool: ClientManager, req: Request) -> HandleResult {
+        guard let type = route.type else {
             return .invalidFormat
         }
         
-        guard let service = serviceRespondingTo(verb: verb) else {
+        guard let service = serviceRespondingTo(type: type) else {
+            
             return .serviceNotFound
         }
+        
         
         if service.self.accessPermissionRequired == true &&  Permission.can(connection: source, .access, in: service) == false {
             return .permissionDenied
         }
-                
-        service.handle(message: message, source: &source, pool: pool, req: req)
+        
+        service.handle(route: route, source: &source, pool: pool, req: req)
         return .ok
+        
     }
-    
+        
     func publish(event: CoreTalkEvent) {
         let candidates = self.services.filter { $0.eventsToListen != nil }
         
@@ -80,10 +82,9 @@ class ServiceManager {
         }
     }
     
-    func serviceRespondingTo(verb: String) -> CoreTalkService? {        
+    func serviceRespondingTo(type: String) -> CoreTalkService? {
         for service in self.services {
-            let list = service.responses.AllCases()
-            if list.contains(where: { $0 == verb}) {                
+            if service.serviceName == type {
                 return service
             }
         }

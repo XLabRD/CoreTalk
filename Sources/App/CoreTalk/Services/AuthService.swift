@@ -9,48 +9,82 @@ import FluentSQLite
 
 
 class Authentication: CoreTalkService {
-    var manager: ServiceManager?
-    private enum AuthResponses: String, ServiceRespondable {
-        case auth        
+    
+    //Auth Service Structures
+    struct Client: Codable {
+        var address: String?
     }
-    var responses: Respondable.Type = AuthResponses.self
-
+    
+    enum Verb: String, Codable {
+        case login
+    }
+    
+    struct UserRoute: Codable {
+        var client: Client?
+        var verb: Verb?
+        
+    }
+    
+    var manager: ServiceManager?
+    
     var eventsToListen: [CoreTalkEventKind]? =
         [.connections,
          .disconnections]
     
     static var accessPermissionRequired = false    
-    static var serviceName: String = "Authentication"
+    static var serviceName: String = "auth"
     
     private var addressPool = [Address]()
     private var gateKeeper = GateKeeper()
     
     var serviceId = UUID()
     
-    func handle<T: CoreTalkRepresentable>(message: T, source: inout Connection, pool: ClientManager, req: Request) {
+    func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
+       let jsonDecoder = JSONDecoder()
         
-        if let verb = message.verb {
-            switch verb {
-            case AuthResponses.auth.rawValue:
-                basicAuth(message: message, source: source, pool: pool, req: req)           
-            default:
-                return
-            }
+        guard let jsonData = route.jsonData else {
+            source.send(object: CoreTalkError.init(type: .InvalidFormat))
+            return
+        }
+        
+        guard let userRoute = try? jsonDecoder.decode(UserRoute.self, from: jsonData) else  {
+            source.send(object: CoreTalkError.init(type: .InvalidFormat))
+            return
+        }
+        
+        guard let verb = userRoute.verb else {
+            source.send(object: CoreTalkError.init(type: .InvalidFormat))
+            return
+        }
+        
+        switch verb {
+        case .login:
+            basicAuth(userRoute: userRoute, source: source, pool: pool, req: req)
         }
     }
+
+    
 }
 
 
 // Custom Behaviour
 extension Authentication {
-    func basicAuth<T: CoreTalkRepresentable>(message: T, source: Connection, pool: ClientManager, req: Request) {
+    
+    
+    struct AuthMessage: Codable {
+        var address: String?
+    }
+    
+    func basicAuth(userRoute: UserRoute, source: Connection, pool: ClientManager, req: Request) {
         
         guard source.client?.address == nil else {
             source.send(object: CoreTalkError.init(type: .AlreadyAuth))
             return
         }
         
-        guard let body = message.body, let desiredAddress = body["address"] as? String, let newAddress =  Address(desiredAddress) else {
+        
+        
+        guard let desiredAddress = userRoute.client?.address, let newAddress =  Address(desiredAddress) else {
             source.send(object: CoreTalkError.init(type: .InvalidFormat))
             return
         }
@@ -58,7 +92,7 @@ extension Authentication {
         
         self.gateKeeper.getClient(from: newAddress, req: req) { client in
             if let client = client {
-                
+
                 if let clientHostname = client.hostname { //Has a requirement
                     if let currentHostName = source.currentHostName { //Unweap current
                         if currentHostName != clientHostname { //No Match?
@@ -68,12 +102,12 @@ extension Authentication {
                         }
                     }
                 }
-                
+
                 if self.addAddressToPool(address: newAddress) != true {
                     source.send(object: CoreTalkError.init(type: .AddressTaken)) //Maybe permission denied?
                     return
                 }
-                
+
                 let permissions = client.permissions
                 source.client?.permissions += permissions
                 source.confirmed = true
@@ -83,7 +117,7 @@ extension Authentication {
             } else {
                 source.send(object: CoreTalkError.init(type: .PermissionDenied))
             }
-        }      
+        }
     }
 }
 

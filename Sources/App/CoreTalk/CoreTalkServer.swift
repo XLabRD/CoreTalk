@@ -33,13 +33,19 @@ class CoreTalkServer {
                 self.connections.detach(socket: ws)                
             }
             
-            ws.onText { ws, text in
-                let ct = CoreTalkMessage(raw: text)
+            ws.onText { ws, text in                
                 guard var source = self.connections[ws] else {
                     return
                 }
                 
-                let result =  self.services.handle(message: ct, source: &source, pool: self.connections, req: req)
+                guard let route = try? Route(jsonString: text) else {
+                    let err = CoreTalkError(type: .InvalidFormat)
+                    source.send(object: err)
+                    return
+                }
+                
+                let result =  self.services.handle(route: route, source: &source, pool: self.connections, req: req)
+
                 if result != .ok {
                     switch result {
                     case .invalidFormat:
