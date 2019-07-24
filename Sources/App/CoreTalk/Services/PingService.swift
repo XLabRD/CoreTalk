@@ -9,41 +9,25 @@ import Vapor
 
 class Ping: CoreTalkService {
     var manager: ServiceManager?
-//    private enum PingResponses: String, ServiceRespondable {
-//        case ping
-//    }
-//    var responses: Respondable.Type = PingResponses.self
-    
+
     var eventsToListen: [CoreTalkEventKind]?
     static var serviceName: String = "Ping"
     static var accessPermissionRequired = true
     var serviceId = UUID()
     
-    internal struct PongBody: Encodable {
+    private struct PongBody: Encodable {
         let timeStamp = Date().ctStringValue()
     }
     
-    internal struct Pong: Encodable {
+    private struct Pong: Encodable {
         let pong = PongBody()
     }
     
     func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
-        
+        source.send(object: Pong())
     }
 
     
-//    func handle(message: Message, source: inout Connection, pool: ClientManager, req: Request) {
-//        if let verb = message.noun {
-//            switch verb {
-//            case PingResponses.ping.rawValue:
-//                let pong = Pong()
-//                source.send(object: pong)
-//            default:
-//                return
-//            }
-//            
-//        }
-//    }
 }
 
 

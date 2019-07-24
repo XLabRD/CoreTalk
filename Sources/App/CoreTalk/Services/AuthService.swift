@@ -10,19 +10,18 @@ import FluentSQLite
 
 class Authentication: CoreTalkService {
     
-    //Auth Service Structures
-    struct Client: Codable {
-        var address: String?
-    }
-    
-    enum Verb: String, Codable {
-        case login
-    }
-    
-    struct UserRoute: Codable {
-        var client: Client?
+    //Auth Service Message Models
+    private struct ClientRoute: Codable {
+        var client: ParamClient?
         var verb: Verb?
-        
+    }
+    
+    private struct ParamClient: Codable {
+        var address: Address?
+    }
+    
+    private enum Verb: String, Codable {
+        case login
     }
     
     var manager: ServiceManager?
@@ -39,27 +38,21 @@ class Authentication: CoreTalkService {
     
     var serviceId = UUID()
     
-    func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
-       let jsonDecoder = JSONDecoder()
-        
-        guard let jsonData = route.jsonData else {
+    func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {                   
+
+        guard let clientRoute = try? route.decode(to: ClientRoute.self) else {
             source.send(object: CoreTalkError.init(type: .InvalidFormat))
             return
         }
         
-        guard let userRoute = try? jsonDecoder.decode(UserRoute.self, from: jsonData) else  {
-            source.send(object: CoreTalkError.init(type: .InvalidFormat))
-            return
-        }
-        
-        guard let verb = userRoute.verb else {
+        guard let verb = clientRoute.verb else {
             source.send(object: CoreTalkError.init(type: .InvalidFormat))
             return
         }
         
         switch verb {
         case .login:
-            basicAuth(userRoute: userRoute, source: source, pool: pool, req: req)
+            basicAuth(clientRoute: clientRoute, source: source, pool: pool, req: req)
         }
     }
 
@@ -75,7 +68,7 @@ extension Authentication {
         var address: String?
     }
     
-    func basicAuth(userRoute: UserRoute, source: Connection, pool: ClientManager, req: Request) {
+    private func basicAuth(clientRoute: ClientRoute, source: Connection, pool: ClientManager, req: Request) {
         
         guard source.client?.address == nil else {
             source.send(object: CoreTalkError.init(type: .AlreadyAuth))
@@ -84,7 +77,7 @@ extension Authentication {
         
         
         
-        guard let desiredAddress = userRoute.client?.address, let newAddress =  Address(desiredAddress) else {
+        guard let desiredAddress = clientRoute.client?.address, let newAddress =  Address(desiredAddress) else {
             source.send(object: CoreTalkError.init(type: .InvalidFormat))
             return
         }
@@ -141,6 +134,7 @@ extension Authentication {
         case .connections:
             break
         case .disconnections:
+            print("DISCONECTED")
             if let address = connection.client?.address {
                 self.addressPool.removeAll { $0 == address }
                 print("[AuthService] Removed address: \(address) from pool")

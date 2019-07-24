@@ -6,12 +6,25 @@ struct Route: Codable {
     var type: String?
     var jsonData: Data?
     
+    enum RouteError: Error {
+        case decodingError
+    }
+    
     init(jsonString: String) throws {
         let decoder = JSONDecoder()
         if let jsonData = jsonString.data(using: .utf8) {
             self = try decoder.decode(Route.self, from: jsonData)
             self.jsonData = jsonData
         }
+    }
+    
+    func decode<E:Codable>(to type:E.Type) throws -> E {
+        
+        guard let jsonData = self.jsonData else {
+            throw RouteError.decodingError
+        }
+        
+        return try JSONDecoder().decode(E.self, from: jsonData)
     }
 }
 
