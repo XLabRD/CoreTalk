@@ -11,12 +11,12 @@ class Ping: CoreTalkService {
     var manager: ServiceManager?
 
     var eventsToListen: [CoreTalkEventKind]?
-    static var serviceName: String = "Ping"
+    static var serviceName: String = "ping"
     static var accessPermissionRequired = true
     var serviceId = UUID()
     
     private struct PongBody: Encodable {
-        let timeStamp = Date().ctStringValue()
+        let timeStamp = Date().coreTalkDateString()
     }
     
     private struct Pong: Encodable {

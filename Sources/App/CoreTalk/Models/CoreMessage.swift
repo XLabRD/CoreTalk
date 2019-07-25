@@ -31,7 +31,7 @@ struct Route: Codable {
 struct CoreHandshake: Encodable {
     let name = CoreTalkSettings.ServerName
     let version = CoreTalkSettings.ServerVersion
-    let timeStamp = Date().ctStringValue()    
+    let timeStamp = Date().coreTalkDateString()    
 }
 
 struct AKN: Encodable {

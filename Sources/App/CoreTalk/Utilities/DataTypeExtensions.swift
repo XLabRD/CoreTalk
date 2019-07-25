@@ -7,7 +7,7 @@
 import Vapor
 
 extension Date {
-    func ctStringValue() -> String {
+    func coreTalkDateString() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = CoreTalkSettings.ServerDateFormat
         let myString = formatter.string(from: self)

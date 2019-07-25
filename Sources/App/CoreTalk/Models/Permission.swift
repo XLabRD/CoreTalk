@@ -18,7 +18,6 @@ final class Permission: SQLiteUUIDModel, Equatable {
     }
     
     var id: UUID?
-//    var clientId: UUID?
     let authority: Authority
     let serviceName: String
     

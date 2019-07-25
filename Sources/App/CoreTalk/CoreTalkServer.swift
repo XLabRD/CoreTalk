@@ -28,7 +28,10 @@ class CoreTalkServer {
             
             ws.onClose.always {
                 print("[SocketServer] Socket Closed")
-                let event = CoreTalkEvent(kind: .disconnections, sourceConection: connection, sourceService: nil, changes: nil)
+                let event = CoreTalkEvent(kind: .disconnections,
+                                          sourceConection: connection,
+                                          sourceService: nil,
+                                          changes: nil)
                 self.services.publish(event: event)
                 self.connections.detach(socket: ws)                
             }
