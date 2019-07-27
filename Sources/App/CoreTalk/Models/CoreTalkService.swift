@@ -15,7 +15,7 @@ enum CoreTalkEventKind: String, Equatable {
 
 struct CoreTalkEvent {
     var kind: CoreTalkEventKind
-    var sourceConection: Connection?
+    var sourceConnection: Connection?
     var sourceService: CoreTalkService?
     var changes: [Codable]?
 }

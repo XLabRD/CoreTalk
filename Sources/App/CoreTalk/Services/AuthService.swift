@@ -129,13 +129,12 @@ extension Authentication {
 
 // Protocol duties
 extension Authentication {
-    func handleEvent(event: CoreTalkEvent, for connection: Connection) {
+    func handle(event: CoreTalkEvent) {
         switch event.kind {
         case .connections:
             break
-        case .disconnections:
-            print("DISCONECTED")
-            if let address = connection.client?.address {
+        case .disconnections:            
+            if let address = event.sourceConnection?.client?.address {
                 self.addressPool.removeAll { $0 == address }
                 print("[AuthService] Removed address: \(address) from pool")
             }

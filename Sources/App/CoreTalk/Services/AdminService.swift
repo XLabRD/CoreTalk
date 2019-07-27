@@ -245,8 +245,8 @@ extension Admin { //ABC Clients
 
 
 // Protocol duties
-extension Admin {
-    func handleEvent(event: CoreTalkEvent, for connection: Connection) {
+extension Admin {    
+    func handle(event: CoreTalkEvent) {
         switch event.kind {
         case .connections:
             break

@@ -73,10 +73,10 @@ class ServiceManager {
     }
         
     func publish(event: CoreTalkEvent) {
+        
         let candidates = self.services.filter { $0.eventsToListen != nil }
         
-        let targets = candidates.filter { $0.eventsToListen?.contains(event.kind) == true }
-        
+        let targets = candidates.filter { $0.eventsToListen?.contains(event.kind) == true }        
         for target in targets {
             target.handle(event: event)
         }

@@ -7,29 +7,40 @@
 
 import Vapor
 
+private enum Verb: String, Codable {
+    case subscribe
+    case unsubscribe
+    case publish
+}
+
+private enum EventKind: String, Codable {
+    case connect
+    case disconnect
+    case custom
+}
+
+private struct EventRoute: Codable {
+    var verb: Verb?
+    var domain: String?
+    var service: String?
+    var kind: EventKind?
+}
+
 fileprivate struct Subscription: Equatable {
     var subscriber: Connection
-    var eventKind: CoreTalkEventKind
-    var service: String
-    var verb:  String?
+    var service: String?
+    var domain:  String?
 }
 
 class PubSub: CoreTalkService {
-//    private enum PubSubResponses: String, ServiceRespondable {
-//        case subscribe
-//        case unsubscribe
-//    }
-//    var responses: Respondable.Type = PubSubResponses.self
-    
     static var accessPermissionRequired: Bool = true
+    static var serviceName: String  = "pubsub"
     
-    static var serviceName: String  = "PubSub"
-    
+    //CORETALKSERVICE
     var manager: ServiceManager?
-    
     var eventsToListen: [CoreTalkEventKind]? = [.connections, .disconnections, .mutations]
-    
     var serviceId: UUID = UUID()
+    
     
     private var subscriptions = [Subscription]()
     
@@ -50,20 +61,56 @@ class PubSub: CoreTalkService {
 //    }
     
     func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
+        guard let eventRoute = try? route.decode(to: EventRoute.self), let verb = eventRoute.verb else {
+            source.send(object: CoreTalkError(type: .InvalidFormat))
+            return
+        }
+        
+        switch verb {
+        case .subscribe:
+            let subscriber = Subscription(subscriber: source, service: eventRoute.service, domain: eventRoute.domain)
+            self.subscriptions.append(subscriber)
+            source.send(object: AKN(request: verb.rawValue))
+        case .unsubscribe:
+            if let address = source.client?.address {
+                self.subscriptions.removeAll( where: { $0.subscriber.client?.address == address && $0.service == eventRoute.service && $0.domain == eventRoute.domain })
+                source.send(object: AKN(request: verb.rawValue))
+            }
+        default:
+            //TODO!            
+            source.send(object: CoreTalkError(type: .InvalidFormat))
+            return
+        }
+        
+//
+//        switch verb {
+//        case .addClient:
+//            addClient(adminRoute: adminRoute, source: source, pool: pool, req: req)
+//        case .removeClient:
+//            removeClient(adminRoute: adminRoute, source: source, pool: pool, req: req)
+//        case .addPermission:
+//            addPermission(adminRoute: adminRoute, source: source, pool: pool, req: req)
+//        case .removePermission:
+//            removePermission(adminRoute: adminRoute, source: source, pool: pool, req: req)
+//        default:
+//            return
+//        }
+        
+        
         
     }
 
 }
 
 extension PubSub {
-    func handleEvent(event: CoreTalkEvent, for connection: Connection) {
+    func handle(event: CoreTalkEvent) {        
         switch event.kind {
         case .connections:
             break
         case .disconnections:
-            if let address = connection.client?.address {
+            if let address = event.sourceConnection?.client?.address {
                 self.subscriptions.removeAll( where: { $0.subscriber.client?.address == address })
-                print("[AuthService] Removed address: \(address) from pool")
+                print("[events] Removed address: \(address) from pool")
             }
         case .mutations:
             break

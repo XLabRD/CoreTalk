@@ -26,8 +26,6 @@ class Ping: CoreTalkService {
     func handle(route: Route, source: inout Connection, pool: ClientManager, req: Request) {
         source.send(object: Pong())
     }
-
-    
 }
 
 
