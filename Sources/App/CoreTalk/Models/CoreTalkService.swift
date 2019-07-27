@@ -23,6 +23,7 @@ struct CoreTalkEvent {
 protocol CoreTalkService {
     var manager: ServiceManager? { get set }
     static var serviceName: String { get set }
+    static var respondsTo: [String]? { get set }
     var eventsToListen: [CoreTalkEventKind]? {get set}
     static var accessPermissionRequired: Bool {get set}
     func handle(route: Route, source: inout Connection, pool:ClientManager, req: Request)
@@ -30,7 +31,13 @@ protocol CoreTalkService {
     
 }
 
-extension CoreTalkService {
+extension CoreTalkService {    
+    var respondsTo: [String] {
+        get  {
+            return Self.respondsTo ?? [self.serviceName]
+        }
+    }
+    
     
     var serviceName: String {
         get  {

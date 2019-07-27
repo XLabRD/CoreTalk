@@ -32,6 +32,7 @@ class Authentication: CoreTalkService {
     
     static var accessPermissionRequired = false    
     static var serviceName: String = "auth"
+    static var respondsTo: [String]? = nil
     
     private var addressPool = [Address]()
     private var gateKeeper = GateKeeper()

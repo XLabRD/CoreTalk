@@ -46,6 +46,7 @@ class Admin: CoreTalkService {
     static var accessPermissionRequired = true
     static var serviceName: String = "admin"
     private var gateKeeper = GateKeeper()
+    static var respondsTo: [String]? = nil
     
     var serviceId = UUID()    
     

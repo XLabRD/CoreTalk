@@ -14,6 +14,7 @@ class Ping: CoreTalkService {
     static var serviceName: String = "ping"
     static var accessPermissionRequired = true
     var serviceId = UUID()
+    static var respondsTo: [String]? = nil
     
     private struct PongBody: Encodable {
         let timeStamp = Date().coreTalkDateString()

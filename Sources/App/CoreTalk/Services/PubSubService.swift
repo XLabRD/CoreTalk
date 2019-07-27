@@ -35,6 +35,7 @@ fileprivate struct Subscription: Equatable {
 class PubSub: CoreTalkService {
     static var accessPermissionRequired: Bool = true
     static var serviceName: String  = "pubsub"
+    static var respondsTo: [String]? = nil
     
     //CORETALKSERVICE
     var manager: ServiceManager?

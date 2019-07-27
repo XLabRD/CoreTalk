@@ -84,9 +84,9 @@ class ServiceManager {
     
     func serviceRespondingTo(type: String) -> CoreTalkService? {
         for service in self.services {
-            if service.serviceName == type {
-                return service
-            }
+            if service.respondsTo.contains(type) {
+                        return service
+            }            
         }
         return nil
     }
